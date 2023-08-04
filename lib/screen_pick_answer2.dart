@@ -2,29 +2,48 @@
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:untitled2/screen_result.dart";
+import "package:untitled2/tests/dio_server.dart";
 
 class ScreenSelectAnswer2 extends StatefulWidget{
-  const ScreenSelectAnswer2({super.key});
+  Server server = Server();
+  late List<String> answers;
+  late List<String> usr_names;
+  ScreenSelectAnswer2(List<String> answers, List<String> usr_names, {super.key}){
+    this.answers = answers;
+    this.usr_names = usr_names;
+  }
   @override
   State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return ScreenSelectorAnswer2Page();
+    return ScreenSelectorAnswer2Page(answers,usr_names);
   }
 }
 
 class ScreenSelectorAnswer2Page extends State<ScreenSelectAnswer2>{
   late int selectCount;
   late int expressSelect;
-  List<String> topics = ["개","고양이","물개"];
   late String topic;
   bool answerClear = false;
+  late List<String> answers;
+  late List<String> usr_names;
+  Color _buttonColor1 = Colors.blue;
+  Color _buttonColor2 = Colors.blue;
+  Color _buttonColor3 = Colors.blue;
 
-  ScreenSelectorAnswer2Page({ Key? key }){
-    selectCount = 0;
-    expressSelect = 1;
-    if(selectCount == 0){
-      topic = topics[selectCount];
-    }
+  ScreenSelectorAnswer2Page(List<String> answers, List<String> usr_names,{ Key? key }){
+    this.answers = answers;
+    this.usr_names = usr_names;
+  }
+
+  @override
+  void initState() {
+  super.initState();
+
+  selectCount = 0;
+  expressSelect = 1;
+
+  if(selectCount == 0){
+    topic = answers[selectCount];
+  }
   }
 
   void answerSubmit(){
@@ -40,14 +59,11 @@ class ScreenSelectorAnswer2Page extends State<ScreenSelectAnswer2>{
       else{
         selectCount++;
         expressSelect++;
-        topic = topics[selectCount];
+        topic = answers[selectCount];
       }
     });
   }
 
-  String Player1 = "";
-  String Player2 = "";
-  String Player3 = "";
   final BorderRadius _baseRadiusBorder = BorderRadius.circular(8);
   @override
   Widget build(BuildContext context){
@@ -57,11 +73,36 @@ class ScreenSelectorAnswer2Page extends State<ScreenSelectAnswer2>{
             Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children : [
+                  Text("술래 : ${usr_names[0]}",
+                  style: TextStyle(fontSize: 50)),
                   Text("$expressSelect / 3",
                     style: TextStyle(fontSize: 30),
                     textAlign: TextAlign.center,
                   ),
-                  Text("($topic)",
+                  /*
+                  FutureBuilder <List<String>>(
+                    future: answers,
+                    builder : (context, snapshot){
+                      if(snapshot.connectionState == ConnectionState.waiting){
+                        return CircularProgressIndicator();
+                      }
+                      else if (snapshot.hasError){
+                        return Text("Error! ${snapshot.error} ");
+                      } else {
+                        responseData = snapshot.data ?? [];
+                        return ElevatedButton(onPressed: (){
+                          print('Response data from POST request:');
+                          print(responseData[0]);
+                          print(responseData[1]);
+                          print(responseData[2]);
+                          },
+                          child: Text("test"),);
+                      }
+                    }
+                  ),
+
+                   */
+                  Text("대답 : $topic",
                     style: TextStyle(fontSize: 30),
                     textAlign: TextAlign.center,
                   ),
@@ -71,11 +112,16 @@ class ScreenSelectorAnswer2Page extends State<ScreenSelectAnswer2>{
                         SizedBox(
                             height : 100, width: 300,
                             child: ElevatedButton(
-                              child: Text('$Player1'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _buttonColor1,
+                              ),
+                              child: Text(usr_names[1],
+                              style: TextStyle(fontSize: 30),),
                               onPressed: (){
                                 answerSubmit();
                                 print(answerClear);
                                 print(selectCount);
+                                _buttonColor1 = Colors.blueGrey;
                               },
                             )
                         ),
@@ -85,8 +131,17 @@ class ScreenSelectorAnswer2Page extends State<ScreenSelectAnswer2>{
                         SizedBox(
                             height : 100, width: 300,
                             child: ElevatedButton(
-                              child: Text('$Player1'),
-                              onPressed: (){answerSubmit();},
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _buttonColor2,
+                              ),
+                              child: Text(usr_names[2],
+                                style: TextStyle(fontSize: 30),),
+                              onPressed: (){
+                                answerSubmit();
+                                print(answerClear);
+                                print(selectCount);
+                                _buttonColor2 = Colors.blueGrey;
+                              },
                             )
                         ),
                         SizedBox(
@@ -95,8 +150,17 @@ class ScreenSelectorAnswer2Page extends State<ScreenSelectAnswer2>{
                         SizedBox(
                             height : 100, width: 300,
                             child: ElevatedButton(
-                              child: Text('$Player1'),
-                              onPressed: (){answerSubmit();},
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _buttonColor3,
+                              ),
+                              child: Text(usr_names[3],
+                                style: TextStyle(fontSize: 30),),
+                              onPressed: (){
+                                answerSubmit();
+                                print(answerClear);
+                                print(selectCount);
+                                _buttonColor3 = Colors.blueGrey;
+                              },
                             )
 
                         ),

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:untitled2/make_room.dart';
 import 'package:untitled2/tests/json_parse.dart';
@@ -47,7 +48,10 @@ class StartPage extends StatefulWidget {
 
 class StartPageState extends State<StartPage>{
   String usr_name = "";
+  String room_num = "";
+  static const String TEST_ROOM_NUMBER = "1234";
   Server server = Server();
+  late dynamic getItem;
   @override
   Widget build(BuildContext context){
     return MaterialApp(
@@ -78,14 +82,17 @@ class StartPageState extends State<StartPage>{
                         Column(
                           children: [
                             ElevatedButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 if(usr_name == ""){
                                   showToast();
                                 }
                                 else{
+                                  server.postCreateRoom(room_num,"영민");
+                                  List<String> response = await server.postGetName("1234");
+                                  print(response);
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => NextScreen(usr_name)),
+                                    MaterialPageRoute(builder: (context) => NextScreen(response, room_num)),
                                     //server.post_usr_name_req(usr_name),
                                   );
                                 }
@@ -99,13 +106,15 @@ class StartPageState extends State<StartPage>{
                                   border: OutlineInputBorder(),
                                 ),
                                 onChanged: (value){
-                                  usr_name = value;
+                                  room_num = value;
                                 },
                               ),
                               width: 150,
                             ),
                             ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                server.postParticipateRoom("1234", "민수");
+                              },
                               child: Text('방 입장'),
                             ),
                             ElevatedButton(
@@ -117,10 +126,16 @@ class StartPageState extends State<StartPage>{
                               },
                               child: Text('http test'),
                             ),
+                            ElevatedButton(
+                              onPressed: () {
+                                getItem = server.testGetReq();
+                                showToastItem(getItem);
+                              },
+                              child: Text('테스트 용 버튼'),
+                            ),
                           ],
                         )
                     )
-
                   ]
               ),
             )
@@ -138,4 +153,14 @@ void showToast(){
   fontSize: 20,
   textColor: Colors.white,
   toastLength: Toast.LENGTH_SHORT);
+}
+
+void showToastItem(Response item){
+  Fluttertoast.showToast(
+      msg: "$item",
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.redAccent,
+      fontSize: 20,
+      textColor: Colors.white,
+      toastLength: Toast.LENGTH_SHORT);
 }

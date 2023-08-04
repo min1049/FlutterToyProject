@@ -6,22 +6,20 @@ import "package:untitled2/screen_writer.dart";
 import "main.dart";
 
 class NextScreen extends StatelessWidget{
-  late String name1;
-
-  NextScreen(this.name1, { Key? key }) : super(key: key);
-  NextScreen.Comeback({ Key? key }) : super(key: key){
-    this.name1 = "";
+  late List<String> usr_names;
+  late String room_number;
+  NextScreen(List<String> usr_names,String room_number, { Key? key }) : super(key: key){
+    this.usr_names = usr_names;
+    this.room_number = room_number;
   }
+  NextScreen.Comeback({ Key? key }) : super(key: key);
   
   String name2 = "Player2";
   String name3 = "Player3";
   String name4 = "Player4";
 
-  final usr_names = List<String>;
-
   final double human_icon_size = 75;
   final double between_human_chatbox = 300;
-  final String room_number = "ABC1";
 
   @override
   Widget build(BuildContext context){
@@ -43,7 +41,7 @@ class NextScreen extends StatelessWidget{
                     color: Colors.redAccent,
                     size: human_icon_size,
                   ),
-                  Text(name1),
+                  Text(usr_names[0]),
                 ],
               )
             ),
@@ -55,7 +53,7 @@ class NextScreen extends StatelessWidget{
                       color: Colors.redAccent,
                       size: human_icon_size,
                     ),
-                    Text(name2),
+                    Text(usr_names[1]),
                   ],
                 )
             ),
@@ -67,7 +65,7 @@ class NextScreen extends StatelessWidget{
                       color: Colors.redAccent,
                       size: human_icon_size,
                     ),
-                    Text(name3),
+                    Text(usr_names[2]),
                   ],
                 )
             ),
@@ -79,7 +77,7 @@ class NextScreen extends StatelessWidget{
                       color: Colors.redAccent,
                       size: human_icon_size,
                     ),
-                    Text(name4),
+                    Text(usr_names[3]),
                   ],
                 )
             ),
@@ -160,7 +158,7 @@ class NextScreen extends StatelessWidget{
                         onPressed: (){
                           Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const RoomWriter())
+                              MaterialPageRoute(builder: (context) => RoomWriter())
                           );}
                     )
                 ),
