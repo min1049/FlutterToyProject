@@ -5,6 +5,7 @@ import 'package:untitled2/make_room2.dart';
 import 'package:untitled2/tests/json_parse.dart';
 import 'package:untitled2/tests/dio_server.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:untitled2/tests/ws_server.dart';
 
 void main() => runApp(MyApp());
 
@@ -74,6 +75,7 @@ class _SelectPlayerState extends State<SelectPlayerState>{
 
 class StartPage extends StatefulWidget {
   late String usrname;
+  WSServer ws = WSServer();
   StartPage({Key? key, required this.usrname}) : super(key: key);
   //StartPage.SelectPlayer({Key? key, required this.usrname}) : super(key: key);
 
@@ -91,6 +93,7 @@ class StartPageState extends State<StartPage>{
   static const String TEST_ROOM_NUMBER = "1234";
 
   Server server = Server(); // http 전용 서버 생성
+
   late dynamic getItem;
 
 
@@ -179,9 +182,19 @@ class StartPageState extends State<StartPage>{
                             ),
                             ElevatedButton(
                               onPressed: () {
+                                widget.ws.testWS();
                               },
                               child: Text('테스트 스크린 이동(WS)'),
                             ),
+                            StreamBuilder(
+                              stream: widget.ws.channel.stream,
+                              builder: (context, snapshot){
+                                return Padding(
+                                  padding : const EdgeInsets.symmetric(vertical: 24.0),
+                                  child: Text(snapshot.hasData ? '${snapshot.data}' : ''),
+                                );
+                              }
+                            )
                           ],
                         )
                     )
