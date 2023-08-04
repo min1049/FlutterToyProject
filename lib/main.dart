@@ -1,53 +1,99 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:untitled2/make_room.dart';
+import 'package:untitled2/make_room2.dart';
 import 'package:untitled2/tests/json_parse.dart';
 import 'package:untitled2/tests/dio_server.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 void main() => runApp(MyApp());
 
-class MyApp extends StatefulWidget{
-  MyApp({Key? key } ) : super(key : key);
-  @override
-  Widget build(BuildContext context){
-    return MaterialApp(
-      home: StartPage(),
-    );
-  }
-
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return MyAppState();
-  }
-}
-
-class MyAppState extends State<MyApp>{
-
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-
-        primarySwatch: Colors.blue,
-      ),
-      home: StartPage(),
+      home: SelectPlayerState(),
     );
   }
 }
+
+class SelectPlayerState extends StatefulWidget {
+  @override
+  _SelectPlayerState createState() => _SelectPlayerState();
+}
+
+class _SelectPlayerState extends State<SelectPlayerState>{
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        home: Scaffold(
+            body:
+            Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(onPressed: (){
+                          Navigator.push(
+                            context,
+                              MaterialPageRoute(builder : (context) => StartPage(usrname: "Player1"))
+                            );
+                        },child: Text("Player1")),
+                        ElevatedButton(onPressed: (){
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(builder : (context) => StartPage(usrname: "Player2"))
+                          );
+                        },child: Text("Player2")),
+                        ElevatedButton(onPressed: (){
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(builder : (context) => StartPage(usrname: "Player3"))
+                          );
+                        },child: Text("Player3")),
+                        ElevatedButton(onPressed: (){
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(builder : (context) => StartPage(usrname: "Player4"))
+                          );
+                        },child: Text("Player4")),
+                      ],
+                    ),
+                    Container(
+
+                    )
+                  ],
+                )
+            )
+        )
+    );
+  }
+}
+
 class StartPage extends StatefulWidget {
-  StartPage({Key? key}) : super(key: key);
+  late String usrname;
+  StartPage({Key? key, required this.usrname}) : super(key: key);
+  //StartPage.SelectPlayer({Key? key, required this.usrname}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
-    return StartPageState();
+    return StartPageState(usr_name: usrname);
   }
 }
 
 class StartPageState extends State<StartPage>{
-  String usr_name = "";
-  Server server = Server();
+  late String usr_name;
+  String room_num = "1234";
+  StartPageState({required this.usr_name});
+
+  static const String TEST_ROOM_NUMBER = "1234";
+
+  Server server = Server(); // http 전용 서버 생성
+  late dynamic getItem;
+
+
   @override
   Widget build(BuildContext context){
     return MaterialApp(
@@ -57,6 +103,7 @@ class StartPageState extends State<StartPage>{
               child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    Text("현재 플레이어 : $usr_name"),
                     Container(
                       child:
                       Text("시작화면"),
@@ -78,14 +125,18 @@ class StartPageState extends State<StartPage>{
                         Column(
                           children: [
                             ElevatedButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 if(usr_name == ""){
                                   showToast();
                                 }
                                 else{
+                                  server.postCreateRoom(room_num,usr_name);
+                                  final List<String> response = await server.postGetName("1234",executeWithArbitraryValue: true);
+                                  //print(response);
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => NextScreen(usr_name)),
+                                    //MaterialPageRoute(builder: (context) => NextScreen(response, TEST_ROOM_NUMBER)),
+                                    MaterialPageRoute(builder: (context) => MakeRoom(usr_names: response,room_number: TEST_ROOM_NUMBER,)),
                                     //server.post_usr_name_req(usr_name),
                                   );
                                 }
@@ -99,13 +150,15 @@ class StartPageState extends State<StartPage>{
                                   border: OutlineInputBorder(),
                                 ),
                                 onChanged: (value){
-                                  usr_name = value;
+                                  room_num = value;
                                 },
                               ),
                               width: 150,
                             ),
                             ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                server.postParticipateRoom("1234", "민수");
+                              },
                               child: Text('방 입장'),
                             ),
                             ElevatedButton(
@@ -117,10 +170,21 @@ class StartPageState extends State<StartPage>{
                               },
                               child: Text('http test'),
                             ),
+                            ElevatedButton(
+                              onPressed: () {
+                                getItem = server.testGetReq();
+                                showToastItem(getItem);
+                              },
+                              child: Text('테스트 용 버튼'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                              },
+                              child: Text('테스트 스크린 이동(WS)'),
+                            ),
                           ],
                         )
                     )
-
                   ]
               ),
             )
@@ -138,4 +202,14 @@ void showToast(){
   fontSize: 20,
   textColor: Colors.white,
   toastLength: Toast.LENGTH_SHORT);
+}
+
+void showToastItem(Response item){
+  Fluttertoast.showToast(
+      msg: "$item",
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.redAccent,
+      fontSize: 20,
+      textColor: Colors.white,
+      toastLength: Toast.LENGTH_SHORT);
 }

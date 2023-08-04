@@ -1,12 +1,15 @@
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:untitled2/screen_result.dart";
+import "package:untitled2/tests/dio_server.dart";
 
 class RoomWriter extends StatelessWidget{
-  const RoomWriter({ Key? key }) : super(key: key);
+  RoomWriter({ Key? key }) : super(key: key);
   final String picker = "Player1";
   final String Topic = "상대방의 첫 인상을 \n작성하세요!";
   String answer = "";
+
+  Server server = Server();
 
   @override
   Widget build(BuildContext context){
@@ -81,10 +84,12 @@ class RoomWriter extends StatelessWidget{
                         children: [
                           ElevatedButton(
                             child: const Text('입력완료'),
-                            onPressed: (){Navigator.push(
+                            onPressed: (){
+                              Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => ScreenWaiting()),
-                            );},
+                                MaterialPageRoute(builder: (context) => ScreenWaiting()),);
+                                server.postAnswer(answer);
+                              },
                           ),
                           SizedBox(
                             width: 25,

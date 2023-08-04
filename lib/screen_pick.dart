@@ -2,9 +2,12 @@ import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:untitled2/screen_pick_answer.dart";
 import "package:untitled2/screen_pick_answer2.dart";
+import "package:untitled2/tests/dio_server.dart";
 
 class RoomPick extends StatelessWidget{
   RoomPick({ Key? key }) : super(key: key);
+
+  Server server = Server();
 
   @override
   Widget build(BuildContext context){
@@ -25,11 +28,15 @@ class RoomPick extends StatelessWidget{
                         child:
                         ElevatedButton(
                           child: const Text('입력 완료'),
-                            onPressed: (){
+                            onPressed: () async {
+                              List<String> response = await server.postGetAnswer("1234", 1, executeWithArbitraryValue: true);
+                              List<String> responseName = await server.postGetName("1234",executeWithArbitraryValue: true);
+                              print(response);
                               Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => ScreenSelectAnswer2())
-                              );}
+                                  MaterialPageRoute(builder: (context) => ScreenSelectAnswer2(response,responseName)));
+
+                          }
                     ),
                     ),
                     Container(
