@@ -5,6 +5,7 @@ import "package:flutter/cupertino.dart";
 import "package:untitled2/screen_pick.dart";
 import "package:untitled2/screen_writer.dart";
 import "package:untitled2/tests/dio_server.dart";
+import "package:untitled2/tests/ws_stomp_server.dart";
 
 import "main.dart";
 
@@ -14,7 +15,11 @@ class MakeRoom extends StatefulWidget{
   MakeRoom({super.key,required this.usr_names,required this.room_number});
 
   @override
-  State<StatefulWidget> createState() => _startMakeRoom(usr_names: this.usr_names);
+  State<StatefulWidget> createState() => _startMakeRoom(
+    usr_names: this.usr_names,
+    room_number: this.room_number,
+  );
+
 
 }
 
@@ -22,14 +27,15 @@ class _startMakeRoom extends State<StatefulWidget>{
   late List<UserInfo> room_info;
   late List<String> usr_names;
   late int player_num;
+  String room_number;
+  _startMakeRoom({Key? key, required this.usr_names,required this.room_number});
 
-
-  _startMakeRoom({Key? key, required this.usr_names});
-
-  String room_number = "test";
+  StompServer2 st2 = StompServer2(room_number: "1234");
 
   final double human_icon_size = 75;
   final double between_human_chatbox = 200;
+
+
 
   int countPlayerInRoom(){
     int count = usr_names.length;
@@ -49,7 +55,7 @@ class _startMakeRoom extends State<StatefulWidget>{
   void initState() {
     super.initState();
 
-    Timer.periodic(Duration(seconds: 1), (timer) {
+    Timer.periodic(Duration(seconds: 5), (timer) {
       updateStateEverySecond();
       _updateState();
     });
@@ -57,13 +63,13 @@ class _startMakeRoom extends State<StatefulWidget>{
     this.player_num = countPlayerInRoom();
     room_info = List.generate(this.player_num, (index) => UserInfo(name: this.usr_names[index]));
     room_info.forEach((UserInfo) {
-      print('Player Name: ${UserInfo.name}, Score: ${UserInfo.isRoom}');
+      //print('Player Name: ${UserInfo.name}, Score: ${UserInfo.isRoom}');
     });
   }
 
   void _updateState() async {
     // 필요한 경우 여기에서 비동기 작업 수행
-    final List<String> response = await server.postGetName("1234",executeWithArbitraryValue: true);
+    final List<String> response = await server.postGetName(room_number);
 
     setState((){
       //List<dynamic> responseData = List<dynamic>.from(response.body);
@@ -72,7 +78,7 @@ class _startMakeRoom extends State<StatefulWidget>{
       this.player_num = countPlayerInRoom();
       room_info = List.generate(this.player_num, (index) => UserInfo(name: this.usr_names[index]));
       room_info.forEach((UserInfo) {
-        print('Player Name: ${UserInfo.name}, Score: ${UserInfo.isRoom}');
+        //print('Player Name: ${UserInfo.name}, Score: ${UserInfo.isRoom}');
       });
     });
   }
@@ -165,6 +171,26 @@ class _startMakeRoom extends State<StatefulWidget>{
                       ],
                     ),
                   ),
+                  StreamBuilder(
+                    //stream: widget.ws.channel.stream,
+                      stream: st2.dataStreamController.stream,
+                      builder: (context, snapshot){
+                        if (snapshot.hasData) {
+                          // 스트림으로부터 새로운 데이터가 도착하면 ListView에 추가
+                          return ListView.builder(
+                            itemCount: st2.message.length,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                title: Text(st2.message[index]),
+                              );
+                            },
+                          );
+                        } else {
+                          // 스트림에 데이터가 없는 경우 또는 초기 상태
+                          return CircularProgressIndicator();
+                        }
+                      }
+                  ),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -200,7 +226,9 @@ class _startMakeRoom extends State<StatefulWidget>{
                             child:
                             ElevatedButton(
                               child: const Text('돌아가기'),
-                              onPressed: (){Navigator.push(context,
+                              onPressed: (){
+
+                                Navigator.push(context,
                                   MaterialPageRoute(builder: (context) => StartPage(usrname: "돌아가기",)));},
                             )
                         ),
@@ -276,12 +304,13 @@ class PlayerBox extends StatelessWidget{
 
 class lastWidget extends StatelessWidget{
   double between_human_chatbox = 10;
-
+  StompServer2 st2 = StompServer2(room_number: "1234");
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return Row(
       children: [
+
         Container(
           height: between_human_chatbox,
         ),
@@ -370,7 +399,9 @@ class lastWidget extends StatelessWidget{
                   child:
                   ElevatedButton(
                     child: const Text('돌아가기'),
-                    onPressed: (){Navigator.push(context,
+                    onPressed: (){
+                      st2.dispose();
+                      Navigator.push(context,
                         MaterialPageRoute(builder: (context) => StartPage(usrname: "돌아가기",)));},
                   )
               ),

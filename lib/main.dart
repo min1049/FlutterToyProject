@@ -6,6 +6,7 @@ import 'package:untitled2/tests/json_parse.dart';
 import 'package:untitled2/tests/dio_server.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:untitled2/tests/ws_server.dart';
+import 'package:untitled2/tests/ws_stomp_server.dart';
 
 void main() => runApp(MyApp());
 
@@ -76,6 +77,7 @@ class _SelectPlayerState extends State<SelectPlayerState>{
 class StartPage extends StatefulWidget {
   late String usrname;
   WSServer ws = WSServer();
+  //StompServer st = StompServer();
   StartPage({Key? key, required this.usrname}) : super(key: key);
   //StartPage.SelectPlayer({Key? key, required this.usrname}) : super(key: key);
 
@@ -94,11 +96,15 @@ class StartPageState extends State<StartPage>{
 
   Server server = Server(); // http 전용 서버 생성
 
-  late dynamic getItem;
+  late Response getItem;
+
+  //stomp 전용 서버 생성
+  String message = '';
 
 
   @override
   Widget build(BuildContext context){
+    StompServer2 st2 = StompServer2(room_number: room_num);
     return MaterialApp(
         home : Scaffold(
             body :
@@ -133,9 +139,10 @@ class StartPageState extends State<StartPage>{
                                   showToast();
                                 }
                                 else{
+                                  //StompServer2 st2 = StompServer2(room_number: room_num);
                                   server.postCreateRoom(room_num,usr_name);
-                                  final List<String> response = await server.postGetName("1234",executeWithArbitraryValue: true);
-                                  //print(response);
+                                  st2.connectToStompServer();
+                                  final List<String> response = await server.postGetName(room_num);
                                   Navigator.push(
                                     context,
                                     //MaterialPageRoute(builder: (context) => NextScreen(response, TEST_ROOM_NUMBER)),
@@ -159,13 +166,24 @@ class StartPageState extends State<StartPage>{
                               width: 150,
                             ),
                             ElevatedButton(
-                              onPressed: () {
-                                server.postParticipateRoom("1234", "민수");
+                              onPressed: () async {
+                                //StompServer2 st2 = StompServer2(room_number: room_num);
+                                server.postParticipateRoom(room_num,usr_name);
+                                final List<String> response = await server.postGetName(room_num);
+
+                                Navigator.push(
+                                  context,
+                                  //MaterialPageRoute(builder: (context) => NextScreen(response, TEST_ROOM_NUMBER)),
+                                  MaterialPageRoute(builder: (context) => MakeRoom(usr_names: response,room_number: room_num,)),
+                                  //server.post_usr_name_req(usr_name),
+                                );
+
                               },
                               child: Text('방 입장'),
                             ),
                             ElevatedButton(
                               onPressed: () {
+
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(builder: (context) => JsonParse())
@@ -175,26 +193,62 @@ class StartPageState extends State<StartPage>{
                             ),
                             ElevatedButton(
                               onPressed: () {
-                                getItem = server.testGetReq();
+                                getItem = server.testGetReq() as Response;
                                 showToastItem(getItem);
                               },
                               child: Text('테스트 용 버튼'),
                             ),
-                            ElevatedButton(
-                              onPressed: () {
-                                widget.ws.testWS();
-                              },
-                              child: Text('테스트 스크린 이동(WS)'),
+                            Container(
+                              child: TextField(
+                                decoration: InputDecoration(
+                                  labelText: '메세지 전송',
+                                  border: OutlineInputBorder(),
+                                ),
+                                onChanged: (value){
+                                  message = value;
+                                },
+                              ),
+                              width: 150,
                             ),
-                            StreamBuilder(
-                              stream: widget.ws.channel.stream,
-                              builder: (context, snapshot){
-                                return Padding(
-                                  padding : const EdgeInsets.symmetric(vertical: 24.0),
-                                  child: Text(snapshot.hasData ? '${snapshot.data}' : ''),
-                                );
-                              }
-                            )
+                            Row(
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    //StompServer2 st2 = StompServer2(room_number: room_num);
+                                    st2.connectToStompServer();
+                                  },
+                                  child: Text('stomp test'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    //StompServer2 st2 = StompServer2(room_number: room_num);
+                                    st2.disconnectFromStompServer();
+                                  },
+                                  child: Text('stomp disconnect'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    //StompServer2 st2 = StompServer2(room_number: room_num);
+                                    st2.send(message);
+                                  },
+                                  child: Text('stomp send'),
+                                ),
+                                StreamBuilder(
+                                    //stream: widget.ws.channel.stream,
+                                    stream: st2.dataStreamController.stream,
+                                    builder: (context, snapshot){
+                                      return Padding(
+                                        padding : const EdgeInsets.symmetric(vertical: 24.0),
+                                        child: Container(
+                                          child : Text(snapshot.hasData ? '${snapshot.data}' : ''),
+                                          color : Colors.blueGrey
+                                        )
+                                      );
+                                    }
+                                )
+                              ],
+                            ),
+
                           ],
                         )
                     )

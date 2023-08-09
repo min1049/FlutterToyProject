@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
+import '../models/url.dart';
 
 /*
 class Services{
@@ -28,21 +28,18 @@ class Services{
 */
 
 class Server{
-  String _API_PREFIX = "http://10.14.4.78:8080/Room";
+  String _API_PREFIX = "http://10.14.4.153:8080/Room";
 
-  Future<dynamic> testGetReq() async {
-    try {
+  Future<http.Response?> testGetReq() async {
       final response = await http.get(Uri.parse("$_API_PREFIX/"));
       if (response.statusCode == 200) {
         print("통신 가능");
         print(response.body);
-        return response;
+          return response;
       } else {
         print("통신 불가");
+          return null;
       }
-    } catch (e) {
-        print("에러 발생");
-    }
   }
   Future<void> getReq() async {
     // async 끝났다라는 신호
@@ -63,10 +60,12 @@ class Server{
       if(executeWithArbitraryValue){
         return;
       }
-      Response response;
-      Dio dio = new Dio();
-      response = await dio.post("$_API_PREFIX/CreateRoom", data: {"roomNumber" : room, "NickName" : usrName},);
-      //print("여기야 $response");
+      else{
+        Response response;
+        Dio dio = new Dio();
+        response = await dio.post("$_API_PREFIX/CreateRoom", data: {"roomNumber" : room, "NickName" : usrName},);
+        print("여기야 $response");
+      }
     }
     Future<List<String>> postGetName(String room, {bool executeWithArbitraryValue = false}) async {
       if(executeWithArbitraryValue){
