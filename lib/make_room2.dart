@@ -4,6 +4,7 @@ import "package:flutter/material.dart";
 import "package:flutter/cupertino.dart";
 import "package:untitled2/screen_pick.dart";
 import "package:untitled2/screen_writer.dart";
+import "package:untitled2/start_page.dart";
 import "package:untitled2/tests/dio_server.dart";
 import "package:untitled2/tests/ws_stomp_server.dart";
 
@@ -100,6 +101,20 @@ class _startMakeRoom extends State<StatefulWidget>{
                   Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children : [
+                        Container(
+                            child:
+                            ElevatedButton(
+                                child: const Text('게임 시작하기'),
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => RoomPick())
+                                    // 게임을 시작하는 신호를 서버로 보냄냄
+                                  );
+                                }
+                            )
+                        ),
                         ElevatedButton(
                             onPressed: (){
                               _updateState();
@@ -162,10 +177,7 @@ class _startMakeRoom extends State<StatefulWidget>{
                             // 아이콘 버튼에 전송 아이콘 추가
                               icon: Icon(Icons.send),
                               // 입력된 텍스트가 존재할 경우에만 _handleSubmitted 호출
-
                               onPressed: (){}
-
-
                           ),
                         ),
                       ],
@@ -310,7 +322,6 @@ class lastWidget extends StatelessWidget{
     // TODO: implement build
     return Row(
       children: [
-
         Container(
           height: between_human_chatbox,
         ),
@@ -357,13 +368,12 @@ class lastWidget extends StatelessWidget{
                     // 입력된 텍스트가 존재할 경우에만 _handleSubmitted 호출
 
                     onPressed: (){}
-
-
                 ),
               ),
             ],
           ),
         ),
+
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
