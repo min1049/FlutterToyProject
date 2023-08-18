@@ -13,12 +13,14 @@ import "main.dart";
 class MakeRoom extends StatefulWidget{
   late List<String> usr_names;
   late String room_number;
-  MakeRoom({super.key,required this.usr_names,required this.room_number});
+  late String usr_name;
+  MakeRoom({super.key,required this.usr_names,required this.room_number,required this.usr_name});
 
   @override
   State<StatefulWidget> createState() => _startMakeRoom(
     usr_names: this.usr_names,
     room_number: this.room_number,
+    usr_name: this.usr_name,
   );
 
 
@@ -28,11 +30,12 @@ class _startMakeRoom extends State<StatefulWidget>{
   late List<UserInfo> room_info;
   late List<String> usr_names;
   late int player_num;
-  String room_number;
-  _startMakeRoom({Key? key, required this.usr_names,required this.room_number});
+  late String room_number;
+  late String usr_name;
+  _startMakeRoom({Key? key, required this.usr_names,required this.room_number,required this.usr_name});
 
-  StompServer2 st2 = StompServer2(room_number: "1234");
-
+  HttpServer httpServer = HttpServer();
+  late StompServer2 st2 = StompServer2(room_number: this.room_number);
   final double human_icon_size = 75;
   final double between_human_chatbox = 200;
 
@@ -44,6 +47,7 @@ class _startMakeRoom extends State<StatefulWidget>{
   }
   int counter = 0;
 
+  /*
   void updateStateEverySecond() {
     setState(() {
       // 여기에서 상태를 업데이트합니다 (예: 카운터 증가)
@@ -51,13 +55,14 @@ class _startMakeRoom extends State<StatefulWidget>{
       print(counter);
     });
   }
+   */
 
   @override
   void initState() {
     super.initState();
 
     Timer.periodic(Duration(seconds: 5), (timer) {
-      updateStateEverySecond();
+      //updateStateEverySecond();
       _updateState();
     });
 
@@ -106,6 +111,7 @@ class _startMakeRoom extends State<StatefulWidget>{
                             ElevatedButton(
                                 child: const Text('게임 시작하기'),
                                 onPressed: () {
+                                  // 사용자의 상태마다 화면 실행 상태 코드를 받아야함
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -239,7 +245,8 @@ class _startMakeRoom extends State<StatefulWidget>{
                             ElevatedButton(
                               child: const Text('돌아가기'),
                               onPressed: (){
-
+                                httpServer.exitRoom(room_number, usr_name);
+                                st2.cancelFromStompServer();
                                 Navigator.push(context,
                                   MaterialPageRoute(builder: (context) => StartPage(usrname: "돌아가기",)));},
                             )
@@ -315,8 +322,12 @@ class PlayerBox extends StatelessWidget{
 }
 
 class lastWidget extends StatelessWidget{
+  late String room_number;
+  late String usr_name;
+  lastWidget({required this.room_number, required this.usr_name, Key? key});
   double between_human_chatbox = 10;
   StompServer2 st2 = StompServer2(room_number: "1234");
+  HttpServer httpServer = HttpServer();
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -366,7 +377,6 @@ class lastWidget extends StatelessWidget{
                   // 아이콘 버튼에 전송 아이콘 추가
                     icon: Icon(Icons.send),
                     // 입력된 텍스트가 존재할 경우에만 _handleSubmitted 호출
-
                     onPressed: (){}
                 ),
               ),
@@ -410,7 +420,8 @@ class lastWidget extends StatelessWidget{
                   ElevatedButton(
                     child: const Text('돌아가기'),
                     onPressed: (){
-                      st2.dispose();
+                      //http 요청 : DB에서 사용자 삭제
+
                       Navigator.push(context,
                         MaterialPageRoute(builder: (context) => StartPage(usrname: "돌아가기",)));},
                   )

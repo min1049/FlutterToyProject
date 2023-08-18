@@ -27,8 +27,8 @@ class Services{
 }
 */
 
-class Server{
-  String _API_PREFIX = "http://10.14.4.153:8080/Room";
+class HttpServer{
+  String _API_PREFIX = "http://10.14.4.103:8080/Room";
 
   Future<http.Response?> testGetReq() async {
       final response = await http.get(Uri.parse("$_API_PREFIX/"));
@@ -91,6 +91,10 @@ class Server{
       Dio dio = new Dio();
       response = await dio.post("$_API_PREFIX/ParticipateRoom", data: {"roomNumber" : room, "NickName" : usrName},);
     }
+    Future<void> exitRoom(String room, String usrName) async{
+      Dio dio = new Dio();
+      dio.post("$_API_PREFIX/Exit", data: {"roomNumber" : room,"NickName" : usrName}, );
+    }
     Future<void> postAnswer(String answer) async{
       Response response;
       Dio dio = new Dio();
@@ -146,4 +150,4 @@ class Server{
 
 
 
-Server server = Server();
+HttpServer server = HttpServer();

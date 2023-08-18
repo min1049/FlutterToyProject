@@ -17,14 +17,14 @@ class StompTest{
   StompTest(){
     this.stompClient = StompClient(
         config: StompConfig.SockJS(
-          url: 'http://demo.piesocket.com/v3/channel_123?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self',
+          url: 'http://10.14.4.103:8080/room',
           onConnect: onConnectCallback,
           onWebSocketError: (dynamic error) => print('WebSocket Error: $error'),
         )
     );
   }
 
-  void onConnectCallback(StompFrame frame) {
+  void onConnectCallback(StompFrame frame) async {
     print('Connected to Stomp Server');
   }
 
@@ -32,11 +32,13 @@ class StompTest{
     disconnectFromStompServer();
     dataStreamController.close();
   }
+  void connectToStompServer(){
+    stompClient.activate();
+  }
 
-  void connectToStompServer() async {
-    await stompClient.activate();
+  void subscribeToStompServer() async {
     stompClient.subscribe( //stompSubscripstion 업음
-        destination: '', // 구독할 토픽 이름으로 변경해야 합니다.
+        destination: '/topic/room/$room_number', // 구독할 토픽 이름으로 변경해야 합니다.
         callback: (StompFrame frame) {
           Map<String, dynamic> obj;
           if(frame.body != null){

@@ -9,7 +9,7 @@ class RoomWriter extends StatelessWidget{
   final String Topic = "상대방의 첫 인상을 \n작성하세요!";
   String answer = "";
 
-  Server server = Server();
+  HttpServer server = HttpServer();
 
   @override
   Widget build(BuildContext context){

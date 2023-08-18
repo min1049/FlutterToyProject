@@ -7,7 +7,7 @@ import "package:untitled2/tests/dio_server.dart";
 class RoomPick extends StatelessWidget{
   RoomPick({ Key? key }) : super(key: key);
 
-  Server server = Server();
+  HttpServer server = HttpServer();
 
   @override
   Widget build(BuildContext context){

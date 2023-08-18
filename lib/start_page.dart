@@ -70,12 +70,12 @@ class StartPage extends StatefulWidget {
 
 class StartPageState extends State<StartPage>{
   late String usr_name;
-  String room_num = "1234";
+  String room_num = " ";
   StartPageState({required this.usr_name});
 
   static const String TEST_ROOM_NUMBER = "1234";
 
-  Server server = Server(); // http 전용 서버 생성
+  HttpServer server = HttpServer(); // http 전용 서버 생성
 
   late Response getItem;
 
@@ -122,15 +122,15 @@ class StartPageState extends State<StartPage>{
                                 else{
                                   StompServer2 st2 = StompServer2(room_number: room_num);
                                   server.postCreateRoom(room_num,usr_name);
+                                  final List<String> response = await server.postGetName(room_num);
                                   st2.connectToStompServer();
-                                  //final List<String> response = await server.postGetName(room_num);
-
+                                  st2.subscribeToStompServer();
                                   //Test
-                                  List<String> response = ["test1","test1","test1","test1"];
+                                  //List<String> response = ["test1","test1","test1","test1"];
                                   Navigator.push(
                                     context,
                                     //MaterialPageRoute(builder: (context) => NextScreen(response, TEST_ROOM_NUMBER)),
-                                    MaterialPageRoute(builder: (context) => MakeRoom(usr_names: response,room_number: TEST_ROOM_NUMBER,)),
+                                    MaterialPageRoute(builder: (context) => MakeRoom(usr_names: response,room_number: room_num,usr_name: usr_name,)),
                                     //server.post_usr_name_req(usr_name),
                                   );
                                 }
@@ -158,10 +158,9 @@ class StartPageState extends State<StartPage>{
                                 Navigator.push(
                                   context,
                                   //MaterialPageRoute(builder: (context) => NextScreen(response, TEST_ROOM_NUMBER)),
-                                  MaterialPageRoute(builder: (context) => MakeRoom(usr_names: response,room_number: room_num,)),
+                                  MaterialPageRoute(builder: (context) => MakeRoom(usr_names: response,room_number: room_num,usr_name: usr_name,)),
                                   //server.post_usr_name_req(usr_name),
                                 );
-
                               },
                               child: Text('방 입장'),
                             ),
@@ -201,7 +200,7 @@ class StartPageState extends State<StartPage>{
                                     //StompServer2 st2 = StompServer2(room_number: room_num);
                                     st2.connectToStompServer();
                                   },
-                                  child: Text('stomp test'),
+                                  child: Text('stomp activate'),
                                 ),
                                 ElevatedButton(
                                   onPressed: () {
@@ -210,13 +209,6 @@ class StartPageState extends State<StartPage>{
                                   },
                                   child: Text('stomp disconnect'),
                                 ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    //StompServer2 st2 = StompServer2(room_number: room_num);
-                                    st2.send(message);
-                                  },
-                                  child: Text('stomp send'),
-                                ),
                                 StreamBuilder(
                                   //stream: widget.ws.channel.stream,
                                     stream: st2.dataStreamController.stream,
@@ -224,29 +216,53 @@ class StartPageState extends State<StartPage>{
                                       return Padding(
                                           padding : const EdgeInsets.symmetric(vertical: 24.0),
                                           child: Container(
-                                              child : Text(snapshot.hasData ? '${snapshot.data}' : ''),
+                                              child : Text(snapshot.hasData ? '${snapshot.data}' : 'data'),
                                               color : Colors.blueGrey
                                           )
                                       );
                                     }
-                                )
+                                ),
                               ],
                             ),
-                            ElevatedButton(
-                              onPressed: () {
-                                //StompServer2 st2 = StompServer2(room_number: room_num);
-                                Navigator.push(
-                                  context,
-                                  //MaterialPageRoute(builder: (context) => NextScreen(response, TEST_ROOM_NUMBER)),
-                                  MaterialPageRoute(builder: (context) => TestStompPage()),
-                                  //server.post_usr_name_req(usr_name),
-                                );
-                              },
-                              child: Text('stomp test2'),
+                            Row(
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    //StompServer2 st2 = StompServer2(room_number: room_num);
+                                    st2.subscribeAppToStompServer();
+                                  },
+                                  child: Text('stomp subscribe(app)'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    //StompServer2 st2 = StompServer2(room_number: room_num);
+                                    st2.cancelFromStompServer();
+                                  },
+                                  child: Text('stomp cancel'),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    //StompServer2 st2 = StompServer2(room_number: room_num);
+                                    st2.subscribeToStompServer();
+                                  },
+                                  child: Text('stomp subscribe(topic)'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    //StompServer2 st2 = StompServer2(room_number: room_num);
+                                    st2.cancelFromStompServer();
+                                  },
+                                  child: Text('stomp cancel'),
+                                ),
+                              ],
                             ),
                             StreamBuilder(
                               //stream: widget.ws.channel.stream,
-                                stream: widget.stomptest.dataStreamController.stream,
+                                stream: st2.dataStreamController.stream,
                                 builder: (context, snapshot){
                                   return Padding(
                                       padding : const EdgeInsets.symmetric(vertical: 24.0),
@@ -256,7 +272,14 @@ class StartPageState extends State<StartPage>{
                                       )
                                   );
                                 }
-                            )
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                //StompServer2 st2 = StompServer2(room_number: room_num);
+                                st2.send(message);
+                              },
+                              child: Text('stomp send'),
+                            ),
                           ],
                         )
                     )

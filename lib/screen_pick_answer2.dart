@@ -5,7 +5,7 @@ import "package:untitled2/screen_result.dart";
 import "package:untitled2/tests/dio_server.dart";
 
 class ScreenSelectAnswer2 extends StatefulWidget{
-  Server server = Server();
+  HttpServer server = HttpServer();
   late List<String> answers;
   late List<String> usr_names;
   ScreenSelectAnswer2(List<String> answers, List<String> usr_names, {super.key}){
