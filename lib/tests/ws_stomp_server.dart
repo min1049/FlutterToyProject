@@ -72,6 +72,7 @@ class StompServer2{
   late dynamic stream;
   late String room_number;
   List<String> message = [];
+  String? exitMessage = "나가요";
 
   StreamSubscription? stompSubscription;
   StreamController<String> dataStreamController = StreamController<String>.broadcast();
@@ -97,16 +98,59 @@ class StompServer2{
   void connectToStompServer() async{
     await stompClient.activate();
   }
-  void subscribeToStompServer() async {
-    print("room_number {$room_number}");
+  void testSubscribeToStompServer() async {
+    print("test");
     stompClient.subscribe( //stompSubscripstion 업음
-      destination: '/topic/room/$room_number', // 구독할 토픽 이름으로 변경해야 합니다.
+      destination: '/topic/room/1234', // 구독할 토픽 이름으로 변경해야 합니다.
       callback: (StompFrame frame) {
         String? data = frame.body;
         print('Received message: $data');
         message.add(data!); // 메시지 리스트에 추가
         dataStreamController.add(data);
       }
+    );
+    print("request subscribe done");
+  }
+
+  void subscribeToStompServer(){
+    print("room_num : {$room_number}");
+    stompClient.subscribe( //stompSubscripstion 업음
+        destination: '/topic/room/1234', // 구독할 토픽 이름으로 변경해야 합니다.
+        callback: (StompFrame frame) async {
+          String? data =  await frame.body;
+          print('Received message: $data');
+          message.add(data!); // 메시지 리스트에 추가
+          dataStreamController.add(data);
+        }
+    );
+    print("request subscribe done");
+  }
+
+
+  void testSubscribeAppStartToStompServer() async {
+    print("test");
+    stompClient.subscribe( //stompSubscripstion 업음
+        destination: '/app/Start/1234', // 구독할 토픽 이름으로 변경해야 합니다.
+        callback: (StompFrame frame) {
+          String? data = frame.body;
+          print('Received message: $data');
+          message.add(data!); // 메시지 리스트에 추가
+          dataStreamController.add(data);
+        }
+    );
+    print("request subscribe done");
+  }
+
+  void subscribeAppStartToStompServer() async {
+    print("room_number {$room_number}");
+    stompClient.subscribe( //stompSubscripstion 업음
+        destination: '/app/Start/$room_number', // 구독할 토픽 이름으로 변경해야 합니다.
+        callback: (StompFrame frame) {
+          String? data = frame.body;
+          print('Received message: $data');
+          message.add(data!); // 메시지 리스트에 추가
+          dataStreamController.add(data);
+        }
     );
     print("request subscribe done");
   }
@@ -143,10 +187,17 @@ class StompServer2{
     print("canceled StompServer");
   }
 
-  void send(String message){
+  void testSend(String message){
     stompClient.send(
       destination : '/app/Start/1234',
       body: message,
+    );
+  }
+
+  void send( {required String destination} ){
+    stompClient.send(
+      destination : '/app/$destination/$room_number',
+
     );
   }
 

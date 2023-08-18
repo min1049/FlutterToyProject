@@ -58,7 +58,6 @@ class StartPage extends StatefulWidget {
   late String usrname;
   //WSServer ws = WSServer();
   //StompServer st = StompServer();
-  StompTest stomptest = StompTest();
   StartPage({Key? key, required this.usrname}) : super(key: key);
   //StartPage.SelectPlayer({Key? key, required this.usrname}) : super(key: key);
 
@@ -70,10 +69,8 @@ class StartPage extends StatefulWidget {
 
 class StartPageState extends State<StartPage>{
   late String usr_name;
-  String room_num = " ";
+  String room_num = "1234";
   StartPageState({required this.usr_name});
-
-  static const String TEST_ROOM_NUMBER = "1234";
 
   HttpServer server = HttpServer(); // http 전용 서버 생성
 
@@ -120,11 +117,11 @@ class StartPageState extends State<StartPage>{
                                   showToast();
                                 }
                                 else{
-                                  StompServer2 st2 = StompServer2(room_number: room_num);
+                                  //StompServer2 st2 = StompServer2(room_number: room_num);
                                   server.postCreateRoom(room_num,usr_name);
                                   final List<String> response = await server.postGetName(room_num);
-                                  st2.connectToStompServer();
-                                  st2.subscribeToStompServer();
+                                  //st2.connectToStompServer();
+                                  //st2.subscribeToStompServer();
                                   //Test
                                   //List<String> response = ["test1","test1","test1","test1"];
                                   Navigator.push(
@@ -137,6 +134,7 @@ class StartPageState extends State<StartPage>{
                               },
                               child: Text('방 생성'),
                             ),
+                            Text("$room_num"),
                             Container(
                               child: TextField(
                                 decoration: InputDecoration(
@@ -144,7 +142,9 @@ class StartPageState extends State<StartPage>{
                                   border: OutlineInputBorder(),
                                 ),
                                 onChanged: (value){
-                                  room_num = value;
+                                  setState(() {
+                                    room_num = value;
+                                  });
                                 },
                               ),
                               width: 150,
@@ -154,7 +154,6 @@ class StartPageState extends State<StartPage>{
                                 //StompServer2 st2 = StompServer2(room_number: room_num);
                                 server.postParticipateRoom(room_num,usr_name);
                                 final List<String> response = await server.postGetName(room_num);
-
                                 Navigator.push(
                                   context,
                                   //MaterialPageRoute(builder: (context) => NextScreen(response, TEST_ROOM_NUMBER)),
@@ -229,7 +228,7 @@ class StartPageState extends State<StartPage>{
                                 ElevatedButton(
                                   onPressed: () {
                                     //StompServer2 st2 = StompServer2(room_number: room_num);
-                                    st2.subscribeAppToStompServer();
+                                    st2.testSubscribeAppStartToStompServer();
                                   },
                                   child: Text('stomp subscribe(app)'),
                                 ),
@@ -247,7 +246,7 @@ class StartPageState extends State<StartPage>{
                                 ElevatedButton(
                                   onPressed: () {
                                     //StompServer2 st2 = StompServer2(room_number: room_num);
-                                    st2.subscribeToStompServer();
+                                    st2.testSubscribeToStompServer();
                                   },
                                   child: Text('stomp subscribe(topic)'),
                                 ),
@@ -276,7 +275,7 @@ class StartPageState extends State<StartPage>{
                             ElevatedButton(
                               onPressed: () {
                                 //StompServer2 st2 = StompServer2(room_number: room_num);
-                                st2.send(message);
+                                st2.testSend(message);
                               },
                               child: Text('stomp send'),
                             ),

@@ -32,20 +32,21 @@ class _startMakeRoom extends State<StatefulWidget>{
   late int player_num;
   late String room_number;
   late String usr_name;
+  late StompServer2 st2;
+  String? status = "Default";
   _startMakeRoom({Key? key, required this.usr_names,required this.room_number,required this.usr_name});
 
   HttpServer httpServer = HttpServer();
-  late StompServer2 st2 = StompServer2(room_number: this.room_number);
   final double human_icon_size = 75;
   final double between_human_chatbox = 200;
 
 
-
+  int counter = 0;
   int countPlayerInRoom(){
     int count = usr_names.length;
     return count;
   }
-  int counter = 0;
+
 
   /*
   void updateStateEverySecond() {
@@ -60,7 +61,8 @@ class _startMakeRoom extends State<StatefulWidget>{
   @override
   void initState() {
     super.initState();
-
+    st2 = StompServer2(room_number: room_number);
+    _setStomp();
     Timer.periodic(Duration(seconds: 5), (timer) {
       //updateStateEverySecond();
       _updateState();
@@ -71,22 +73,30 @@ class _startMakeRoom extends State<StatefulWidget>{
     room_info.forEach((UserInfo) {
       //print('Player Name: ${UserInfo.name}, Score: ${UserInfo.isRoom}');
     });
+
+  }
+
+  void _setStomp() async {
+    st2.connectToStompServer();
+    st2.subscribeToStompServer();
   }
 
   void _updateState() async {
     // 필요한 경우 여기에서 비동기 작업 수행
     final List<String> response = await server.postGetName(room_number);
-
-    setState((){
-      //List<dynamic> responseData = List<dynamic>.from(response.body);
-      //players = responseData.map((playerData) => Player(playerData['name'], playerData['score'])).toList();
-      this.usr_names = response;
-      this.player_num = countPlayerInRoom();
-      room_info = List.generate(this.player_num, (index) => UserInfo(name: this.usr_names[index]));
-      room_info.forEach((UserInfo) {
-        //print('Player Name: ${UserInfo.name}, Score: ${UserInfo.isRoom}');
+    if(mounted){
+      setState((){
+        //List<dynamic> responseData = List<dynamic>.from(response.body);
+        //players = responseData.map((playerData) => Player(playerData['name'], playerData['score'])).toList();
+        this.usr_names = response;
+        this.player_num = countPlayerInRoom();
+        room_info = List.generate(this.player_num, (index) => UserInfo(name: this.usr_names[index]));
+        room_info.forEach((UserInfo) {
+          //print('Player Name: ${UserInfo.name}, Score: ${UserInfo.isRoom}');
+        });
       });
-    });
+    }
+
   }
 
   @override
@@ -121,6 +131,16 @@ class _startMakeRoom extends State<StatefulWidget>{
                                 }
                             )
                         ),
+                        Container(
+                            child:
+                            ElevatedButton(
+                                child: const Text('메세지 보내기'),
+                                onPressed: () {
+                                  // 사용자의 상태마다 화면 실행 상태 코드를 받아야함
+                                  st2.send(destination: "Start");
+                                }
+                            )
+                        ),
                         ElevatedButton(
                             onPressed: (){
                               _updateState();
@@ -141,7 +161,45 @@ class _startMakeRoom extends State<StatefulWidget>{
                   Container(
                     height: between_human_chatbox,
                   ),
-                  Text("카운트 확인 $counter"),
+                  Text(
+                    "status : $status",
+
+                  ),
+                  StreamBuilder(
+                    //stream: widget.ws.channel.stream,
+                      stream: st2.dataStreamController.stream,
+                      builder: (context, snapshot){
+                        status = snapshot.data;
+                        return Padding(
+                            padding : const EdgeInsets.symmetric(vertical: 24.0),
+                            child: Container(
+                                child : Text(snapshot.hasData ? '${snapshot.data}' : 'Nothing'),
+                                color : Colors.blueGrey
+                            )
+                        );
+                      }
+                  ),
+                  StreamBuilder(
+                    //stream: widget.ws.channel.stream,
+                      stream: st2.dataStreamController.stream,
+                      builder: (context, snapshot){
+                        if (snapshot.hasData) {
+
+                          // 스트림으로부터 새로운 데이터가 도착하면 ListView에 추가
+                          return ListView.builder(
+                            itemCount: st2.message.length,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                title: Text(st2.message[index]),
+                              );
+                            },
+                          );
+                        } else {
+                          // 스트림에 데이터가 없는 경우 또는 초기 상태
+                          return CircularProgressIndicator();
+                        }
+                      }
+                  ),
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: Row(
@@ -189,26 +247,7 @@ class _startMakeRoom extends State<StatefulWidget>{
                       ],
                     ),
                   ),
-                  StreamBuilder(
-                    //stream: widget.ws.channel.stream,
-                      stream: st2.dataStreamController.stream,
-                      builder: (context, snapshot){
-                        if (snapshot.hasData) {
-                          // 스트림으로부터 새로운 데이터가 도착하면 ListView에 추가
-                          return ListView.builder(
-                            itemCount: st2.message.length,
-                            itemBuilder: (context, index) {
-                              return ListTile(
-                                title: Text(st2.message[index]),
-                              );
-                            },
-                          );
-                        } else {
-                          // 스트림에 데이터가 없는 경우 또는 초기 상태
-                          return CircularProgressIndicator();
-                        }
-                      }
-                  ),
+
                   Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -243,12 +282,14 @@ class _startMakeRoom extends State<StatefulWidget>{
                         Container(
                             child:
                             ElevatedButton(
-                              child: const Text('돌아가기'),
-                              onPressed: (){
+                              child: const Text('돌아가기!!!'),
+                              onPressed: () {
                                 httpServer.exitRoom(room_number, usr_name);
+                                st2.send(destination: 'Exit');
                                 st2.cancelFromStompServer();
-                                Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) => StartPage(usrname: "돌아가기",)));},
+                                st2.disconnectFromStompServer();
+                                Navigator.pop(context);
+                              }
                             )
                         ),
                       ]
