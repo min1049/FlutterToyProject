@@ -115,7 +115,7 @@ class StompServer2{
   void subscribeToStompServer(){
     print("room_num : {$room_number}");
     stompClient.subscribe( //stompSubscripstion 업음
-        destination: '/topic/room/1234', // 구독할 토픽 이름으로 변경해야 합니다.
+        destination: '/topic/room/$room_number', // 구독할 토픽 이름으로 변경해야 합니다.
         callback: (StompFrame frame) async {
           String? data =  await frame.body;
           print('Received message: $data');
@@ -155,7 +155,7 @@ class StompServer2{
     print("request subscribe done");
   }
 
-  void subscribeAppToStompServer(String destination) async {
+  void subscribeAppToStompServer({required String destination}) async {
     print("room_number {$room_number}");
     stompClient.subscribe( //stompSubscripstion 업음
         destination: '/app/$destination/$room_number', // 구독할 토픽 이름으로 변경해야 합니다.
@@ -195,11 +195,11 @@ class StompServer2{
   }
 
   void send( {required String destination} ){
+    print("room number : $room_number");
     stompClient.send(
       destination : '/app/$destination/$room_number',
-
+      body: "hi",
     );
   }
-
 }
 

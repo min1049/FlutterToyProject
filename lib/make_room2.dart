@@ -122,6 +122,7 @@ class _startMakeRoom extends State<StatefulWidget>{
                                 child: const Text('게임 시작하기'),
                                 onPressed: () {
                                   // 사용자의 상태마다 화면 실행 상태 코드를 받아야함
+                                  st2.send(destination: "GameStart");
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -137,7 +138,7 @@ class _startMakeRoom extends State<StatefulWidget>{
                                 child: const Text('메세지 보내기'),
                                 onPressed: () {
                                   // 사용자의 상태마다 화면 실행 상태 코드를 받아야함
-                                  st2.send(destination: "Start");
+                                  st2.subscribeAppToStompServer(destination: "Start");
                                 }
                             )
                         ),
