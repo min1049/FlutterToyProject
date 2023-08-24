@@ -10,7 +10,6 @@ import 'package:untitled2/tests/json_parse.dart';
 import 'package:untitled2/tests/dio_server.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:untitled2/tests/ws_server.dart';
-import 'package:untitled2/tests/ws_st2.dart';
 import 'package:untitled2/tests/ws_stomp_server.dart';
 
 void main() => runApp(MyApp());
@@ -20,9 +19,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        scaffoldBackgroundColor: Color.fromRGBO(237,225,183,1),
-        primarySwatch: Colors.orange,
-        fontFamily: 'DO',
+        scaffoldBackgroundColor: Color.fromRGBO(246,247,251,1),
+        //primarySwatch: Colors.orange,
+        fontFamily: 'cafe',
       ),
       home: HomePage(),
     );

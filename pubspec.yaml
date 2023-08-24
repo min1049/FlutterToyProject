@@ -99,6 +99,9 @@ fonts:
   - family: DO
     fonts:
       asset: assets/fonts/BMDOHYEON.ttf
+  - family: CAFE
+    fonts:
+      - asset: assets/fonts/Cafe24Ssurround-v2.0.ttf
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

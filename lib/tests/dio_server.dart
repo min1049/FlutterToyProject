@@ -28,7 +28,7 @@ class Services{
 */
 
 class HttpServer{
-  String _API_PREFIX = "http://10.14.4.103:8080/Room";
+  String _API_PREFIX = "http://112.154.223.218:7999/Room";
 
   Future<http.Response?> testGetReq() async {
       final response = await http.get(Uri.parse("$_API_PREFIX/"));

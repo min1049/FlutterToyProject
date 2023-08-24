@@ -6,7 +6,6 @@ import 'package:untitled2/Design/screen_start.dart';
 import 'package:untitled2/test_stomp.dart';
 import 'package:untitled2/tests/dio_server.dart';
 import 'package:untitled2/tests/json_parse.dart';
-import 'package:untitled2/tests/ws_st2.dart';
 import 'package:untitled2/tests/ws_stomp_server.dart';
 
 import 'make_room2.dart';

@@ -80,7 +80,7 @@ class StompServer2{
   StompServer2({required this.room_number}){
     this.stompClient = StompClient(
         config: StompConfig.SockJS(
-          url: 'http://10.14.4.103:8080/room',
+          url: 'http://112.154.223.218:7999/room',
           onConnect: onConnectCallback,
           onWebSocketError: (dynamic error) => print('WebSocket Error: $error'),
         )
@@ -96,6 +96,7 @@ class StompServer2{
     dataStreamController.close();
   }
   void connectToStompServer() async{
+    print("연결을 시도합니다.");
     await stompClient.activate();
   }
   void testSubscribeToStompServer() async {
