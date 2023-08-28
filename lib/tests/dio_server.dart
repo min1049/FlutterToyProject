@@ -177,7 +177,23 @@ class HttpServer{
     print("술래 : ${response.data}");
     return response.data;
   }
+
+  void postGuessPerson({required room_id, required picker, required targer_usr, required answer}){
+    Dio dio = new Dio();
+
+    dio.post("$_API_PREFIX/GuessPerson", data: {"roomNumber" : room_id ,"NickName" : picker,"selectNickName" : targer_usr, "selectAnswer" : answer});
+  }
+
+  Future<String> postResult({required room_id, required picker}) async {
+    Response response;
+    Dio dio = new Dio();
+
+    response = await dio.post("$_API_PREFIX/Result", data: {"roomNumber" : room_id, "NickName" : picker });
+
+    return response.toString();
+  }
 }
+
 
 
 

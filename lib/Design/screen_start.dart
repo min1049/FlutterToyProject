@@ -31,11 +31,13 @@ class DesignedStartPage extends StatelessWidget{
 
   void makeWriterList(){
     for(var i in usr_names){
+      print("술래인 유저 : ${room_information["picker"]}");
       print("확인중인 유저 이름 : $i");
       if(room_information["picker"] != i){
         this.writerList.add(i);
       }
     }
+    print(this.writerList);
   }
 
   @override
@@ -141,10 +143,10 @@ class DesignedStartPage extends StatelessWidget{
                             onPressed: () async {
                               List<String> response = await server.postGetAnswer(room_number, 1); //2번째 파라미터 '1'은 라운드 숫자임
                               String result = await server.postGetIt(room_id: this.room_information["room_id"]);
-                              makeWriterList();
                               room_information["writer"] = writerList;
                               room_information["usr_answers"] = response;
                               room_information["picker"] = result;
+                              makeWriterList();
                               server.postGameStart(room_id: room_number);
                               Navigator.push(
                                   context,
