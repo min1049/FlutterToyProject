@@ -1,22 +1,42 @@
 import "package:flutter/material.dart";
 import "package:flutter/cupertino.dart";
+import "package:untitled2/Design/screen_selectpage.dart";
 import "package:untitled2/Design/screen_targetpage.dart";
 import "package:untitled2/screen_pick.dart";
 import "package:untitled2/screen_writer.dart";
 import "package:untitled2/start_page.dart";
 
 import "../app_colors.dart";
+import "../tests/dio_server.dart";
 
 
 class DesignedStartPage extends StatelessWidget{
-  final usr_names = ["test1","test2","test3","test4"];
-  final room_number = 1234;
-  DesignedStartPage({ Key? key }) : super(key: key){
+  var usr_names;
+  var room_number;
+  List<String> writerList = [];
+
+  late Map<String, dynamic> room_information = {
+    "room_id" : room_number,
+    "usr_names" : usr_names,
+  };
+
+  DesignedStartPage({ Key? key , required this.usr_names, required this.room_number}) : super(key: key){
+    print("유저 이름 : ${usr_names}");
+    print("방 번호 : ${room_number}");
   }
   DesignedStartPage.Comeback({ Key? key }) : super(key: key);
 
   final double human_icon_size = 75;
   final double between_human_chatbox = 300;
+
+  void makeWriterList(){
+    for(var i in usr_names){
+      print("확인중인 유저 이름 : $i");
+      if(room_information["picker"] != i){
+        this.writerList.add(i);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context){
@@ -39,15 +59,15 @@ class DesignedStartPage extends StatelessWidget{
                             crossAxisAlignment: CrossAxisAlignment.start,
                             //mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              PlayerBox(usr_names: "Test1"),
-                              PlayerBox(usr_names: "Test2"),
+                              PlayerBox(usr_names: usr_names[0]),
+                              PlayerBox(usr_names: usr_names[1]),
                             ]
                         ),
                         Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              PlayerBox(usr_names: "Test3"),
-                              PlayerBox(usr_names: "Test4"),
+                              PlayerBox(usr_names: usr_names[2]),
+                              PlayerBox(usr_names: usr_names[3]),
                             ]
                         ),
                       ],
@@ -114,15 +134,23 @@ class DesignedStartPage extends StatelessWidget{
                               minimumSize: MaterialStateProperty.all(Size(200, 50)),
                               backgroundColor: MaterialStateProperty.all(MyColors().getSkyblue()),
                             ),
-                            child: const Text('시작하기(술래)',
+                            child: const Text('시작하기(술래 test)',
                             style: TextStyle(
                               fontFamily: "CAFE",
                             ),),
-                            onPressed: (){
+                            onPressed: () async {
+                              List<String> response = await server.postGetAnswer(room_number, 1); //2번째 파라미터 '1'은 라운드 숫자임
+                              String result = await server.postGetIt(room_id: this.room_information["room_id"]);
+                              makeWriterList();
+                              room_information["writer"] = writerList;
+                              room_information["usr_answers"] = response;
+                              room_information["picker"] = result;
+                              server.postGameStart(room_id: room_number);
                               Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => DesignedRoomPick())
-                              );}
+                                  MaterialPageRoute(builder: (context) => DesignedSelectPage(response, room_information))
+                              );
+                            }
                         )
                     ),
                     Row(
@@ -135,7 +163,7 @@ class DesignedStartPage extends StatelessWidget{
                                   onPressed: (){
                                     Navigator.push(
                                         context,
-                                        MaterialPageRoute(builder: (context) => DesignedRoomPick())
+                                        MaterialPageRoute(builder: (context) => DesignedRoomPick(room_information: room_information,))
                                     );}
                               )
                           ),

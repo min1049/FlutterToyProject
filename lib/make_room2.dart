@@ -28,7 +28,7 @@ class MakeRoom extends StatefulWidget{
 
 class _startMakeRoom extends State<StatefulWidget>{
   late List<UserInfo> room_info;
-  late List<String> usr_names;
+  late List<dynamic> usr_names;
   late int player_num;
   late String room_number;
   late String usr_name;
@@ -83,7 +83,7 @@ class _startMakeRoom extends State<StatefulWidget>{
 
   void _updateState() async {
     // 필요한 경우 여기에서 비동기 작업 수행
-    final List<String> response = await server.postGetName(room_number);
+    final List<dynamic> response = await server.postGetName(room_number);
     if(mounted){
       setState((){
         //List<dynamic> responseData = List<dynamic>.from(response.body);

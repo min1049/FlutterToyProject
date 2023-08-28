@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
@@ -76,9 +77,18 @@ class HttpServer{
       Response response;
       Dio dio = new Dio();
       response = await dio.post("$_API_PREFIX/GetParticipation", data: {"roomNumber" : room},);
+      dynamic responseBody = response.data;
         if(response.statusCode == 200){
-          List<String> responseData = List<String>.from(response.data.map((dynamic item) => item.toString()));
-          return responseData;
+
+          //List<dynamic> jsonList = json.decode(response.data);
+          //("json data: $jsonList");
+          //List<String> responseData = List<String>.from(response.data);
+          List<dynamic> responseData = responseBody.map((item) => item.toString()).toList();
+          List<String> stringData = responseData.map((dynamic item) => item.toString()).toList();
+          //List<String> responseData = List<String>.from(response.data);
+          print("response.data 타입 : ${response.data.runtimeType}");
+          print("참여자 이름 : ${responseData}");
+          return stringData;
         }
         else{
           print("연결되지 않음");
@@ -102,6 +112,8 @@ class HttpServer{
       String usrName = "영민";
       response = await dio.post("$_API_PREFIX/CompleteAnswer",data : {"roomNumber" : room, "NickName" : usrName, "Answer" : answer});
     }
+
+
     Future<List<String>> postGetAnswer(String room, int round, {bool executeWithArbitraryValue = false }) async{
       if (executeWithArbitraryValue) {
         // 임의의 값으로 로직 실행
@@ -113,7 +125,9 @@ class HttpServer{
       response = await dio.post("$_API_PREFIX/GetAnswers",data: {"roomNumber" : room, "gameRepeatCount" : round}).timeout(Duration(seconds: 2));
       try{
         if(response.statusCode == 200){
-          List<String> responseData = List<String>.from(response.data.map((dynamic item) => item.toString()));
+          //List<String> responseData = List<String>.from(response.data.map((dynamic item) => item.toString()));
+          List<String> responseData = List<String>.from(response.data);
+          print("정답들 : ${response.data}");
           return responseData;
         }
         else{
@@ -145,6 +159,23 @@ class HttpServer{
     Response response;
     Dio dio = new Dio();
     response = await dio.get(_API_PREFIX, queryParameters: { });
+  }
+
+  Future<void> postGameStart({required room_id, round = 1}) async {
+    Response response;
+    Dio dio = new Dio();
+    response = await dio.post("$_API_PREFIX/GameStart",data: {"roomNumber" : room_id, "gameRepeatCount" : round});
+    return;
+  }
+
+  Future<String> postGetIt({required room_id}) async{
+    Response response;
+    Dio dio = new Dio();
+
+    response = await dio.post("$_API_PREFIX/GetIt", data: {"roomNumber" : room_id });
+
+    print("술래 : ${response.data}");
+    return response.data;
   }
 }
 

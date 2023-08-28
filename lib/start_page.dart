@@ -34,10 +34,11 @@ class _SelectPlayerState extends State<SelectPlayerState>{
                               MaterialPageRoute(builder : (context) => StartPage(usrname: "Player1"))
                           );
                         },child: Text("테스트 페이지")),
-                        ElevatedButton(onPressed: (){
+                        ElevatedButton(onPressed: () async {
+                          List<dynamic> responseName = await server.postGetName("1235");
                           Navigator.push(
                               context,
-                              MaterialPageRoute(builder : (context) => DesignedStartPage())
+                              MaterialPageRoute(builder : (context) => DesignedStartPage(usr_names: responseName,room_number: "1235",))
                           );
                         },child: Text("디자인 페이지")),
                       ],

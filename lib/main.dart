@@ -61,8 +61,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        image: DecorationImage(
-            image: AssetImage('images/splash.gif'), fit: BoxFit.contain),
+        //image: DecorationImage(
+            //image: AssetImage('images/splash.gif'), fit: BoxFit.contain),
       ),
       child: Stack(
         children: <Widget>[
