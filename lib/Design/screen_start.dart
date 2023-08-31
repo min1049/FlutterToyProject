@@ -5,83 +5,234 @@ import "package:untitled2/Design/screen_targetpage.dart";
 import "package:untitled2/screen_pick.dart";
 import "package:untitled2/screen_writer.dart";
 import "package:untitled2/start_page.dart";
+import "package:untitled2/tests/ws_stomp_server.dart";
 
 import "../app_colors.dart";
 import "../tests/dio_server.dart";
 
 
-class DesignedStartPage extends StatelessWidget{
+class DesignedStartPage extends StatefulWidget {
   var usr_names;
-  var room_number;
+  var room_id;
   var round;
+  var usr_name;
+  var usr_count;
+  late StompServer2 st;
+
+  late List<String> response;
+
+  late Map<String, dynamic> room_information = {
+    "usr_name" : usr_name,
+    "room_id" : room_id,
+    "usr_names" : usr_names,
+    "round" : round,
+    "usr_count" : usr_count,
+  };
+
+  int countUserInRoom(){
+    int count = usr_names.length;
+    return count;
+  }
+
+  void getResponse({required room_num}) async {
+    response = await server.postGetName(room_num);
+  }
+
+  DesignedStartPage({ Key? key , required this.usr_name, this.usr_names, required this.room_id, required this.round}) : super(key: key){
+    print("유저 이름 : ${usr_names}");
+    print("방 번호 : ${room_id}");
+    st = StompServer2(room_number: this.room_id);
+    usr_count = countUserInRoom();
+  }
+
+  @override
+  State<StatefulWidget> createState() {
+    getResponse(room_num: room_id);
+    usr_count = countUserInRoom();
+    return DesignedStartPageForm(usr_names: usr_names, usr_count: usr_count);
+  }
+}
+
+class DesignedStartPageForm extends State<DesignedStartPage>{
+  late List<String> usr_names;
+  late int usr_count;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   List<String> writerList = [];
 
-  late Map<String, dynamic> room_information = {
-    "room_id" : room_number,
-    "usr_names" : usr_names,
-    "round" : round,
-  };
+  DesignedStartPageForm({required this.usr_names, required this.usr_count, Key? key,}){
 
-  DesignedStartPage({ Key? key , required this.usr_names, required this.room_number, required this.round}) : super(key: key){
-    print("유저 이름 : ${usr_names}");
-    print("방 번호 : ${room_number}");
   }
-  DesignedStartPage.Comeback({ Key? key }) : super(key: key);
 
   final double human_icon_size = 75;
   final double between_human_chatbox = 300;
 
+
+
   void makeWriterList(){
-    for(var i in usr_names){
-      print("술래인 유저 : ${room_information["picker"]}");
+    for(var i in widget.usr_names){
+      print("술래인 유저 : ${widget.room_information["picker"]}");
       print("확인중인 유저 이름 : $i");
-      if(room_information["picker"] != i){
+      if(widget.room_information["picker"] != i){
         this.writerList.add(i);
       }
     }
     print(this.writerList);
   }
 
+
+
+  Widget buildPlayerBoxWidget({required BuildContext context, required usr_count, required usr_names}){
+    if(usr_count == 2){
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: MediaQuery.sizeOf(context).width/5 * 2,
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  PlayerBox(usr_names: usr_names[0]),
+                ]
+            )
+          ),
+          Container(
+            width: 10,
+          ),
+          Container(
+              width: MediaQuery.sizeOf(context).width/5 * 2,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    PlayerBox(usr_names: usr_names[1]),
+                  ]
+              )
+          ),
+        ],
+      );
+    }
+    else if(usr_count == 3){
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+              width: MediaQuery.sizeOf(context).width/5 * 2,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    PlayerBox(usr_names: usr_names[0]),
+                    PlayerBox(usr_names: usr_names[2]),
+                  ]
+              )
+          ),
+          Container(
+            width: 10,
+          ),
+          Container(
+              width: MediaQuery.sizeOf(context).width/5 * 2,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    PlayerBox(usr_names: usr_names[1]),
+                  ]
+              )
+          ),
+        ],
+      );
+    }
+    else if(usr_count == 4){
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+              width: MediaQuery.sizeOf(context).width/5 * 2,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    PlayerBox(usr_names: usr_names[0]),
+                    PlayerBox(usr_names: usr_names[2]),
+                  ]
+              )
+          ),
+          Container(
+            width: 10,
+          ),
+          Container(
+              width: MediaQuery.sizeOf(context).width/5 * 2,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    PlayerBox(usr_names: usr_names[1]),
+                    PlayerBox(usr_names: usr_names[3]),
+                  ]
+              )
+          ),
+        ],
+      );
+    }
+    else
+      return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+            width: MediaQuery.sizeOf(context).width/5 * 2,
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                //mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  PlayerBox(usr_names: usr_names[0]),
+                ]
+            )
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context){
-    return Scaffold(
-        body: Container(
-          margin: EdgeInsets.only(left: 10,right:10),
-          child: Center(
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children : [
-                    SizedBox(height: MediaQuery.of(context).size.height/12),
-                    Text("방 번호: $room_number"),
-                    Text("사용자 : "),
-                    Container(
-                      height: 20.0,
-                    ),
-                    Row(
-                      //mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            //mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              PlayerBox(usr_names: usr_names[0]),
-                              PlayerBox(usr_names: usr_names[1]),
-                            ]
-                        ),
-                        Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              PlayerBox(usr_names: usr_names[2]),
-                              PlayerBox(usr_names: usr_names[3]),
-                            ]
-                        ),
-                      ],
-                    ),
-                    Container(
-                      height: MediaQuery.of(context).size.height/10
-                    ),
-                    /*Container(
+    return WillPopScope(
+      onWillPop: () async{
+        // 뒤로가기 막아놈
+        /*
+        print("뒤로가기");
+        server.postExit(room_id: widget.room_number, usr_name: widget.usr_name);
+        widget.st.send(destination: 'Exit');
+        widget.st.cancelFromStompServer();
+        widget.st.disconnectFromStompServer();
+        Navigator.pop(context,
+            MaterialPageRoute(builder: (context) => StartPage(usrname: "돌아가기",)));
+
+         */
+
+        return false;
+      },
+        child: Scaffold(
+          body: Container(
+                margin: EdgeInsets.only(left: 10,right:10),
+                child: Center(
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children : [
+                          SizedBox(height: MediaQuery.of(context).size.height/12),
+                          Text("방 번호: ${widget.room_id}"),
+                          Text("사용자 : ${widget.room_information["usr_name"]}"),
+                          Container(
+                            height: 20.0,
+                          ),
+                          Container(
+                              height: 10
+                          ),
+                          /*Container(
                       margin: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: Row(
                         children: <Widget>[
@@ -132,82 +283,85 @@ class DesignedStartPage extends StatelessWidget{
                       ),
                     ),
                      */
-                    Container(
-                        width: MediaQuery.of(context).size.width,
-                      child:
-                        ElevatedButton(
-                            style: ButtonStyle(
-                              minimumSize: MaterialStateProperty.all(Size(200, 50)),
-                              backgroundColor: MaterialStateProperty.all(MyColors().getSkyblue()),
-                            ),
-                            child: const Text('시작하기(술래 test)',
-                            style: TextStyle(
-                              fontFamily: "CAFE",
-                            ),),
-                            onPressed: () async {
-                              List<String> response = await server.postGetAnswer(room_number, 1); //2번째 파라미터 '1'은 라운드 숫자임
-                              String result = await server.postGetIt(room_id: this.room_information["room_id"]);
-                              room_information["writer"] = writerList;
-                              room_information["usr_answers"] = response;
-                              room_information["picker"] = result;
-                              makeWriterList();
-                              server.postGameStart(room_id: room_number);
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => DesignedSelectPage(response, room_information))
-                              );
-                            }
-                        )
-                    ),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
                           Container(
-                              child:
-                              ElevatedButton(
-                                  child: const Text('시작하기(술래)'),
-                                  onPressed: (){
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => DesignedRoomPick(room_information: room_information,))
-                                    );}
-                              )
+                              width: MediaQuery.of(context).size.width,
+                              child: buildPlayerBoxWidget(context: context, usr_count: widget.usr_count, usr_names: widget.usr_names)
                           ),
                           Container(
-                              width: 25.0
+                              width: MediaQuery.of(context).size.width,
+                              padding: EdgeInsets.only(top: 25),
+                            child: ElevatedButton(
+                                style: ButtonStyle(
+                                  minimumSize: MaterialStateProperty.all(Size(200, 50)),
+                                  backgroundColor: MaterialStateProperty.all(MyColors().getSkyblue()),
+                                ),
+                                child: const Text('시작하기(술래 test)',
+                                  style: TextStyle(
+                                    fontFamily: "CAFE",
+                                  ),),
+                                onPressed: () async {
+                                  List<String> response = await server.postGetAnswer(widget.room_id, 1); //2번째 파라미터 '1'은 라운드 숫자임
+                                  String result = await server.postGetIt(room_id: widget.room_information["room_id"]);
+                                  widget.room_information["writer"] = writerList;
+                                  widget.room_information["usr_answers"] = response;
+                                  widget.room_information["picker"] = result;
+                                  makeWriterList();
+                                  server.postGameStart(room_id: widget.room_id);
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => DesignedSelectPage(response, widget.room_information))
+                                  );
+                                }
+                            )
                           ),
-                          Container(
-                              child:
-                              ElevatedButton(
-                                  child: const Text('시작하기(작성자)'),
-                                  onPressed: (){
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => RoomWriter())
-                                    );}
-                              )
-                          ),
-                          Container(
-                              width: 25.0
-                          ),
-                          Container(
-                              child:
-                              ElevatedButton(
-                                child: const Text('돌아가기'),
-                                onPressed: (){Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) => StartPage(usrname: "돌아가기",)));},
-                              )
-                          ),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                    child:
+                                    ElevatedButton(
+                                        child: const Text('시작하기(술래)'),
+                                        onPressed: (){
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(builder: (context) => DesignedRoomPick(room_information: widget.room_information,))
+                                          );}
+                                    )
+                                ),
+                                Container(
+                                    child:
+                                    ElevatedButton(
+                                        child: const Text('시작하기(작성자)'),
+                                        onPressed: (){
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(builder: (context) => RoomWriter())
+                                          );}
+                                    )
+                                ),
+                                Container(
+                                    child:
+                                    ElevatedButton(
+                                      child: const Text('돌아가기'),
+                                      onPressed: (){
+                                        server.postExit(room_id: widget.room_id, usr_name: widget.usr_name);
+                                        Navigator.pop(context,
+                                          MaterialPageRoute(builder: (context) => StartPage(usrname: "돌아가기",)));},
+                                    )
+                                ),
+                              ]
+                          )
                         ]
                     )
-                  ]
-              )
 
+                ),
+              ),
           ),
-        )
     );
   }
 }
+
+
 
 class PlayerBox extends StatelessWidget{
   late String usr_names;
@@ -218,8 +372,6 @@ class PlayerBox extends StatelessWidget{
     return Container(
       margin: EdgeInsets.all(2),
       child: Container(
-        height: MediaQuery.of(context).size.height/4,
-        width: (MediaQuery.of(context).size.height/4.2),
         child: DecoratedBox(
             decoration: BoxDecoration(
               color: MyColors().getWhite(),
@@ -239,34 +391,53 @@ class PlayerBox extends StatelessWidget{
                 ),
               ],
             ),
-            child: Container(
-                padding: EdgeInsets.only(top: 10.0),
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.man,
-                      color: MyColors().getSkyblue(),
-                      size: MediaQuery.of(context).size.height/5,
-                      shadows: [
-                        Shadow(
-                          color: Colors.grey.withOpacity(0.3),
-                          blurRadius: 0.5,
-                          offset: Offset(2,5)
+            child: Flex(
+              direction: Axis.vertical,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+              Flexible(
+              flex: 2,
+              fit: FlexFit.loose,
+              child:Container(
+                  padding: EdgeInsets.only(top: 10.0),
+                  child: Column(
+                    children: [
+                      ClipOval(
+                        child: Container(
+                          width: 150,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.3), // 그림자 색상과 투명도 설정
+                                spreadRadius: 1, // 그림자 확산 정도
+                                blurRadius: 5, // 그림자의 흐릿한 정도
+                                offset: Offset(0, 3), // 그림자의 위치 (x, y)
+                              ),
+                            ],
+                          ),
+                          //color: MyColors().getWhite(),
+                          //이미지 구현 child로 사용
                         )
-                      ],
-                    ),
-                    Text(usr_names,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: "CAFE",
-                    ) ),
-                  ],
-                )
+                      ),
+                      Text(usr_names,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "CAFE",
+                          ) ),
+                    ],
+                  )
+              ),
+              ),
+              ],
+            ),
+
             )
         ),
-      ),
-    );
+      );
   }
 }
 

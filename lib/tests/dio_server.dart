@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import '../models/url.dart';
+import 'ipconfig.dart';
 
 /*
 class Services{
@@ -29,8 +30,8 @@ class Services{
 */
 
 class HttpServer{
-  String _API_PREFIX = "http://112.154.223.218:7999/Room";
-
+  final String _API_PREFIX = IpConfig().getURL;
+  //final String _API_PREFIX = "http://10.14.4.159:7999/Room";
   Future<http.Response?> testGetReq() async {
       final response = await http.get(Uri.parse("$_API_PREFIX/"));
       if (response.statusCode == 200) {
@@ -76,6 +77,7 @@ class HttpServer{
       }
       Response response;
       Dio dio = new Dio();
+      print("URL: $_API_PREFIX");
       response = await dio.post("$_API_PREFIX/GetParticipation", data: {"roomNumber" : room},);
       dynamic responseBody = response.data;
         if(response.statusCode == 200){
@@ -191,6 +193,13 @@ class HttpServer{
     response = await dio.post("$_API_PREFIX/Result", data: {"roomNumber" : room_id, "NickName" : picker });
 
     return response.toString();
+  }
+
+  /* 플레이어 방 나가기 */
+  Future<void> postExit({required room_id, required usr_name})async {
+    Dio dio = new Dio();
+
+    dio.post("$_API_PREFIX/Exit", data: {"roomNumber" : room_id, "NickName" : usr_name});
   }
 }
 

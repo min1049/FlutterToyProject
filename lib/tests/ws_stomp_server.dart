@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
+import 'package:untitled2/tests/ipconfig.dart';
 
 /*
 void onConnect(StompFrame frame) {
@@ -73,6 +74,7 @@ class StompServer2{
   late String room_number;
   List<String> message = [];
   String? exitMessage = "나가요";
+  String URL = IpConfig().getURL;
 
   StreamSubscription? stompSubscription;
   StreamController<String> dataStreamController = StreamController<String>.broadcast();
@@ -80,7 +82,7 @@ class StompServer2{
   StompServer2({required this.room_number}){
     this.stompClient = StompClient(
         config: StompConfig.SockJS(
-          url: 'http://112.154.223.218:7999/room',
+          url: URL,
           onConnect: onConnectCallback,
           onWebSocketError: (dynamic error) => print('WebSocket Error: $error'),
         )

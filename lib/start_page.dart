@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:untitled2/Design/screen_start.dart';
+import 'package:untitled2/app_colors.dart';
 import 'package:untitled2/test_stomp.dart';
 import 'package:untitled2/tests/dio_server.dart';
 import 'package:untitled2/tests/json_parse.dart';
@@ -17,6 +18,7 @@ class SelectPlayerState extends StatefulWidget {
 
 class _SelectPlayerState extends State<SelectPlayerState> {
   var usr_name;
+  var isHost = false;
   String? room_id;
 
   @override
@@ -24,38 +26,113 @@ class _SelectPlayerState extends State<SelectPlayerState> {
     return MaterialApp(
         home: Scaffold(
             body: Container(
-      margin: EdgeInsets.only(left: 10, right: 10),
+      margin: EdgeInsets.only(left: 20, right: 20),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("닉네임 : $usr_name"),
-              Text("방번호: $room_id"),
-              Text("닉네임",
-              style: TextStyle(fontFamily: "cafe",fontSize: 32,fontWeight: FontWeight.bold),),
-              Text("닉네임",
-              style: TextStyle(fontSize: 32,fontWeight: FontWeight.bold)),
-              Container(
-                  child: TextField(
-                decoration: InputDecoration(
-                  labelText: '닉네임을 입력하세요',
-                  border: OutlineInputBorder(),
+              Text(
+                "로그인",
+                style: TextStyle(
+                    fontFamily: "cafe",
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold),
+              ),
+              isHost
+                  ? Text(
+                      "게임에서 사용하실 닉네임과 생성하실 방 번호를 입력해주세요",
+                      style: TextStyle(
+                        fontFamily: "cafe",
+                        fontSize: 18,
+                        color: MyColors().getSkyblue(),
+                      ),
+                    )
+                  : Text(
+                      "게임에서 사용하실 닉네임과 입장하실 방 번호를 입력해주세요",
+                      style: TextStyle(
+                        fontFamily: "cafe",
+                        fontSize: 18,
+                        color: Colors.black54,
+                      ),
+                    ),
+              Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                Text("닉네임 : $usr_name"),
+                Container(width: 15),
+                Text("방번호: $room_id"),
+              ]),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  isHost
+                      ? Text(
+                          "방 생성",
+                          style: TextStyle(
+                            fontFamily: "cafe",
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: MyColors().getSkyblue(),
+                          ),
+                        )
+                      : Text(
+                          "방 입장",
+                          style: TextStyle(
+                            fontFamily: "cafe",
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black12,
+                          ),
+                        ),
+                  Container(
+                    child: Switch(
+                      value: isHost,
+                      onChanged: (value) {
+                        setState(() {
+                          isHost = value;
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              Text(
+                "닉네임",
+                style: TextStyle(
+                  fontFamily: "cafe",
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    usr_name = value;
-                  });
-                },
-              )),
-              Text("방번호"),
+              ),
               Container(
-                margin: EdgeInsets.only(top: 5),
+                  margin: EdgeInsets.only(top: 5),
+                  height: 32,
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: '닉네임을 입력하세요',
+                      border: UnderlineInputBorder(),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        usr_name = value;
+                      });
+                    },
+                  )),
+              Text(
+                "방번호",
+                style: TextStyle(
+                    fontFamily: "cafe",
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold),
+              ),
+              Container(
+                height: 32,
+                margin: EdgeInsets.only(top: 5,bottom: 10),
                 child: TextField(
                   decoration: InputDecoration(
-                    labelText: '방 번호를 입력하세요',
-                    border: OutlineInputBorder(),
+                    hintText: '방 번호를 입력하세요',
+                    border: UnderlineInputBorder(),
                   ),
                   onChanged: (value) {
                     setState(() {
@@ -63,6 +140,81 @@ class _SelectPlayerState extends State<SelectPlayerState> {
                     });
                   },
                 ),
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children : [
+                  isHost?
+                  Container(
+                    width: 500,
+                    child: ElevatedButton(
+                        style: ButtonStyle(
+                          minimumSize: MaterialStateProperty.all(Size(200, 50)),
+                          backgroundColor:
+                          MaterialStateProperty.all(MyColors().getSkyblue()),
+                        ),
+                        child: const Text(
+                          '방생성',
+                          style: TextStyle(
+                            fontFamily: "CAFE",
+                            fontSize: 24,
+                          ),
+                        ),
+                        onPressed: () async {
+                          server.postCreateRoom(room_id!, usr_name);
+                          StompServer2 st = StompServer2(room_number: room_id!);
+                          final List<String> response = await server.postGetName(room_id!);
+
+                          st.connectToStompServer();
+                          st.subscribeToStompServer();
+                          //Test
+                          //List<String> response = ["test1","test1","test1","test1"];
+                          Navigator.push(
+                            context,
+                            //MaterialPageRoute(builder: (context) => NextScreen(response, TEST_ROOM_NUMBER)),
+                            MaterialPageRoute(
+                                builder: (context) => DesignedStartPage(
+                                  usr_names: response,
+                                  room_id: room_id!,
+                                  usr_name: usr_name,
+                                  round: "1",
+                                )
+                            ),
+                            //server.post_usr_name_req(usr_name),
+                          );
+                        }
+                        ),
+                  ):
+                Container(
+                    width: 500,
+                    child: ElevatedButton(
+                        style: ButtonStyle(
+                          minimumSize: MaterialStateProperty.all(Size(200, 50)),
+                          backgroundColor:
+                          MaterialStateProperty.all(MyColors().getSkyblue()),
+                        ),
+                        child: const Text(
+                          '방입장',
+                          style: TextStyle(
+                            fontFamily: "CAFE",
+                            fontSize: 24,
+                          ),
+                        ),
+                        onPressed: () async {
+                          server.postParticipateRoom(room_id!, usr_name);
+                          List<dynamic> responseName = await server.postGetName(room_id!);
+                          print("responseName : ${responseName}");
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => DesignedStartPage(
+                                      usr_name: usr_name,
+                                      usr_names: responseName,
+                                      room_id: room_id,
+                                      round: "1")));
+                        }),
+                  ),
+                ]
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -79,13 +231,15 @@ class _SelectPlayerState extends State<SelectPlayerState> {
                   ElevatedButton(
                       onPressed: () async {
                         List<dynamic> responseName =
-                            await server.postGetName("1235");
+                            await server.postGetName(room_id!);
+                        server.postParticipateRoom(room_id!, usr_name);
                         Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => DesignedStartPage(
+                                    usr_name: usr_name,
                                     usr_names: responseName,
-                                    room_number: room_id,
+                                    room_id: room_id,
                                     round: "1")));
                       },
                       child: Text("게임 테스트")),
@@ -177,7 +331,8 @@ class StartPageState extends State<StartPage> {
                                 usr_names: response,
                                 room_number: room_num,
                                 usr_name: usr_name,
-                              )),
+                              )
+                      ),
                       //server.post_usr_name_req(usr_name),
                     );
                   }
