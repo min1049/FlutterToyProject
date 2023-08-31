@@ -13,14 +13,17 @@ import "../tests/dio_server.dart";
 class DesignedStartPage extends StatelessWidget{
   var usr_names;
   var room_number;
+  var round;
+
   List<String> writerList = [];
 
   late Map<String, dynamic> room_information = {
     "room_id" : room_number,
     "usr_names" : usr_names,
+    "round" : round,
   };
 
-  DesignedStartPage({ Key? key , required this.usr_names, required this.room_number}) : super(key: key){
+  DesignedStartPage({ Key? key , required this.usr_names, required this.room_number, required this.round}) : super(key: key){
     print("유저 이름 : ${usr_names}");
     print("방 번호 : ${room_number}");
   }
@@ -51,6 +54,7 @@ class DesignedStartPage extends StatelessWidget{
                   children : [
                     SizedBox(height: MediaQuery.of(context).size.height/12),
                     Text("방 번호: $room_number"),
+                    Text("사용자 : "),
                     Container(
                       height: 20.0,
                     ),

@@ -12,7 +12,7 @@ class DesignedSelectPage extends StatefulWidget{
   late List<String> answers;
   late List<String> usr_names;
   late dynamic room_id;
-  DesignedSelectPage(List<String> answers, Map<String,dynamic> room_information, {super.key}){
+  DesignedSelectPage(List<String> answers, Map<String,dynamic> room_information, {Key? key}){
     this.answers = answers;
     this.room_information = room_information;
     print("room_information[\"usr_names\"] : ${room_information["usr_names"]}");
@@ -76,50 +76,39 @@ class DesignedSelectPageForm extends State<DesignedSelectPage>{
     }
     return false;
   }
-  void getCorrectCount() async {
-    String result = await server.postResult(room_id: room_information["room_id"], picker: room_information["picker"]);
 
-    print("result : $result");
-
-    setState(() {
-      correctCount = result;
-    });
-  }
-  void answerSubmit({required usr_name}) {
+  Future<void> answerSubmit({required usr_name}) async {
     if(isDuplication(usr_name)){
-      print("중복선택발생!!!!!");
+      print("동일한 인물을 선택하실 수 없습니다.");
       return;
     }
-    else{
-      if(selectCount == 2){
-        answerClear = true;
-        getCorrectCount();
-      }
-      if(answerClear){
-        ans_ans.add(answers[selectCount]); //n번째 질문
-        ans_usr.add(usr_name); // n 번째 선택한 유저
-        server.postGuessPerson(room_id: room_information["room_id"], picker: picker, targer_usr: ans_usr, answer: ans_ans);
-        getCorrectCount();
-        print("답변 : $ans_ans");
-        print("선택한 사람 : $ans_usr");
-      }
+    if(selectCount == 2){
+      answerClear = true;
     }
-  }
-
-  void setStateButton({required usr_name}){
-    setState((){
-      if(answerClear){
-        Navigator.push(context,
-          MaterialPageRoute(builder: (context) => DesignedResultPage(room_information: room_information,result: correctCount),),);
-      }
-      else{ // 정답 입력
+    else{
+      setState(() {
         ans_ans.add(answers[selectCount]); //n번째 질문
         ans_usr.add(usr_name); // n 번째 선택한 유저
         selectCount++;
         expressSelect++;
         topic = answers[selectCount];
-      }
-    });
+      });
+    }
+
+    if(answerClear){
+      ans_ans.add(answers[selectCount]); //n번째 질문
+      ans_usr.add(usr_name); // n 번째 선택한 유저
+      server.postGuessPerson(room_id: room_information["room_id"], picker: picker, targer_usr: ans_usr, answer: ans_ans);
+      print("답변 : $ans_ans");
+      print("선택한 사람 : $ans_usr");
+    }
+
+    if(answerClear){
+      String r = await server.postResult(room_id: room_information["room_id"], picker: room_information["picker"]);
+      Navigator.push(context,
+        MaterialPageRoute(builder: (context) => DesignedResultPage(room_information: room_information,result: r),),);
+    }
+
   }
 
   final BorderRadius _baseRadiusBorder = BorderRadius.circular(8);
@@ -179,9 +168,10 @@ class DesignedSelectPageForm extends State<DesignedSelectPage>{
                                 style: TextStyle(fontSize: 30),),
                               onPressed: (){
                                 answerSubmit(usr_name: writerList[0]);
+                                setState(() {
+                                  _buttonColor1 = Colors.black12;
+                                });
 
-                                _buttonColor1 = Colors.black12;
-                                setStateButton(usr_name: writerList[0]);
                               },
                             )
                         ),
@@ -198,8 +188,9 @@ class DesignedSelectPageForm extends State<DesignedSelectPage>{
                                 style: TextStyle(fontSize: 30),),
                               onPressed: (){
                                 answerSubmit(usr_name: writerList[1]);
-                                _buttonColor2 = Colors.black12;
-                                setStateButton(usr_name: writerList[1]);
+                                setState(() {
+                                  _buttonColor2 = Colors.black12;
+                                });
                               },
                             )
                         ),
@@ -216,8 +207,9 @@ class DesignedSelectPageForm extends State<DesignedSelectPage>{
                                 style: TextStyle(fontSize: 30),),
                               onPressed: (){
                                 answerSubmit(usr_name: writerList[2]);
-                                _buttonColor3 = Colors.black12;
-                                setStateButton(usr_name: writerList[2]);
+                                setState(() {
+                                  _buttonColor3 = Colors.black12;
+                                });
                               },
                             )
 

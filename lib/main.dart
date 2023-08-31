@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         scaffoldBackgroundColor: Color.fromRGBO(246,247,251,1),
         //primarySwatch: Colors.orange,
-        fontFamily: 'cafe',
+        fontFamily: "cafe",
       ),
       home: HomePage(),
     );
