@@ -44,11 +44,11 @@ class pickPage extends State<StatefulWidget>{
                               child: const Text('입력 완료'),
                               onPressed: () async {
                                 List<String> response = await server.postGetAnswer("1234", 1, executeWithArbitraryValue: true);
-                                List<String> responseName = await server.postGetName("1234",executeWithArbitraryValue: true);
+                                List<dynamic>? responseName = await server.postGetName("1234",executeWithArbitraryValue: true);
                                 print(response);
                                 Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => ScreenSelectAnswer2(response,responseName)));
+                                    MaterialPageRoute(builder: (context) => ScreenSelectAnswer2(response,responseName!)));
 
                               }
                           ),
@@ -257,7 +257,7 @@ class writePage extends State<StatefulWidget>{
 
 class _startMakeRoom extends State<StatefulWidget>{
   late List<UserInfo> room_info;
-  late List<String> usr_names;
+  late List<dynamic>? usr_names;
   late int player_num;
   late String room_number;
   _startMakeRoom({Key? key, required this.usr_names,required this.room_number});
@@ -270,8 +270,14 @@ class _startMakeRoom extends State<StatefulWidget>{
 
 
   int countPlayerInRoom(){
-    int count = usr_names.length;
-    return count;
+
+    if(usr_names == null){
+      return 0;
+    }
+    else{
+      int count = (usr_names!.length);
+      return count;
+    }
   }
   int counter = 0;
 
@@ -295,7 +301,7 @@ class _startMakeRoom extends State<StatefulWidget>{
     });
 
     this.player_num = countPlayerInRoom();
-    room_info = List.generate(this.player_num, (index) => UserInfo(name: this.usr_names[index]));
+    room_info = List.generate(this.player_num, (index) => UserInfo(name: this.usr_names![index]));
     room_info.forEach((UserInfo) {
       //print('Player Name: ${UserInfo.name}, Score: ${UserInfo.isRoom}');
     });
@@ -303,14 +309,14 @@ class _startMakeRoom extends State<StatefulWidget>{
 
   void _updateState() async {
     // 필요한 경우 여기에서 비동기 작업 수행
-    final List<String> response = await server.postGetName(room_number);
+    final List<dynamic>? response = await server.postGetName(room_number);
 
     setState((){
       //List<dynamic> responseData = List<dynamic>.from(response.body);
       //players = responseData.map((playerData) => Player(playerData['name'], playerData['score'])).toList();
       this.usr_names = response;
       this.player_num = countPlayerInRoom();
-      room_info = List.generate(this.player_num, (index) => UserInfo(name: this.usr_names[index]));
+      room_info = List.generate(this.player_num, (index) => UserInfo(name: this.usr_names![index]));
       room_info.forEach((UserInfo) {
         //print('Player Name: ${UserInfo.name}, Score: ${UserInfo.isRoom}');
       });

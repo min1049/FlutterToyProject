@@ -35,7 +35,7 @@ class DesignedRoomPick extends StatelessWidget{
                                     child: const Text('GO'),
                                     onPressed: () async {
                                       List<String> response = await server.postGetAnswer("1235", 1); //2번째 파라미터 '1'은 라운드 숫자임
-                                      List<String> responseName = await server.postGetName("1235");
+                                      List<dynamic>? responseName = await server.postGetName("1235");
                                       print(response);
                                       Navigator.push(
                                           context,

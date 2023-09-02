@@ -11,14 +11,14 @@ import "package:untitled2/tests/ws_stomp_server.dart";
 import "main.dart";
 
 class MakeRoom extends StatefulWidget{
-  late List<String> usr_names;
+  late List<dynamic>? usr_names;
   late String room_number;
   late String usr_name;
   MakeRoom({super.key,required this.usr_names,required this.room_number,required this.usr_name});
 
   @override
   State<StatefulWidget> createState() => _startMakeRoom(
-    usr_names: this.usr_names,
+    usr_names: this.usr_names!,
     room_number: this.room_number,
     usr_name: this.usr_name,
   );
@@ -83,12 +83,12 @@ class _startMakeRoom extends State<StatefulWidget>{
 
   void _updateState() async {
     // 필요한 경우 여기에서 비동기 작업 수행
-    final List<dynamic> response = await server.postGetName(room_number);
+    final List<dynamic>? response = await server.postGetName(room_number);
     if(mounted){
       setState((){
         //List<dynamic> responseData = List<dynamic>.from(response.body);
         //players = responseData.map((playerData) => Player(playerData['name'], playerData['score'])).toList();
-        this.usr_names = response;
+        this.usr_names = response!;
         this.player_num = countPlayerInRoom();
         room_info = List.generate(this.player_num, (index) => UserInfo(name: this.usr_names[index]));
         room_info.forEach((UserInfo) {

@@ -2,6 +2,8 @@ import "package:flutter/material.dart";
 import "package:flutter/cupertino.dart";
 import "package:untitled2/Design/screen_selectpage.dart";
 import "package:untitled2/Design/screen_targetpage.dart";
+import "package:untitled2/Design/screen_whoispicker.dart";
+import "package:untitled2/Design/screen_writepage.dart";
 import "package:untitled2/screen_pick.dart";
 import "package:untitled2/screen_writer.dart";
 import "package:untitled2/start_page.dart";
@@ -19,7 +21,7 @@ class DesignedStartPage extends StatefulWidget {
   var usr_count;
   late StompServer2 st;
 
-  late List<String> response;
+  late List<dynamic>? response;
 
   late Map<String, dynamic> room_information = {
     "usr_name" : usr_name,
@@ -35,7 +37,7 @@ class DesignedStartPage extends StatefulWidget {
   }
 
   void getResponse({required room_num}) async {
-    response = await server.postGetName(room_num);
+    response = await server.postGetName(room_num!);
   }
 
   DesignedStartPage({ Key? key , required this.usr_name, this.usr_names, required this.room_id, required this.round}) : super(key: key){
@@ -74,14 +76,21 @@ class DesignedStartPageForm extends State<DesignedStartPage>{
 
 
   void makeWriterList(){
+    writerList = [];
+    if(writerList.length == 4){
+      return;
+    }
     for(var i in widget.usr_names){
       print("술래인 유저 : ${widget.room_information["picker"]}");
-      print("확인중인 유저 이름 : $i");
       if(widget.room_information["picker"] != i){
-        this.writerList.add(i);
+        print("확인중인 유저 이름 : $i");
+        writerList.add(i);
+      }
+      else{
+        print("술래인 유저입니다.");
       }
     }
-    print(this.writerList);
+    print(writerList);
   }
 
 
@@ -200,6 +209,7 @@ class DesignedStartPageForm extends State<DesignedStartPage>{
 
   @override
   Widget build(BuildContext context){
+    String? status = "Default";
     return WillPopScope(
       onWillPop: () async{
         // 뒤로가기 막아놈
@@ -224,6 +234,41 @@ class DesignedStartPageForm extends State<DesignedStartPage>{
                         mainAxisAlignment: MainAxisAlignment.center,
                         children : [
                           SizedBox(height: MediaQuery.of(context).size.height/12),
+                          StreamBuilder(
+                            //stream: widget.ws.channel.stream,
+                              stream: widget.st.dataStreamController.stream,
+                              builder: (context, snapshot){
+                                status = snapshot.data;
+                                return Padding(
+                                    padding : const EdgeInsets.symmetric(vertical: 24.0),
+                                    child: Container(
+                                        child : Text(snapshot.hasData ? '${snapshot.data}' : 'Nothing'),
+                                        color : Colors.blueGrey
+                                    )
+                                );
+                              }
+                          ),
+                          StreamBuilder(
+                            //stream: widget.ws.channel.stream,
+                              stream: widget.st.dataStreamController.stream,
+                              builder: (context, snapshot){
+                                if (snapshot.hasData) {
+
+                                  // 스트림으로부터 새로운 데이터가 도착하면 ListView에 추가
+                                  return ListView.builder(
+                                    itemCount: widget.st.message.length,
+                                    itemBuilder: (context, index) {
+                                      return ListTile(
+                                        title: Text(widget.st.message[index]),
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  // 스트림에 데이터가 없는 경우 또는 초기 상태
+                                  return CircularProgressIndicator();
+                                }
+                              }
+                          ),
                           Text("방 번호: ${widget.room_id}"),
                           Text("사용자 : ${widget.room_information["usr_name"]}"),
                           Container(
@@ -300,13 +345,21 @@ class DesignedStartPageForm extends State<DesignedStartPage>{
                                     fontFamily: "CAFE",
                                   ),),
                                 onPressed: () async {
+                                  server.postGameStart(room_id: widget.room_id);
                                   List<String> response = await server.postGetAnswer(widget.room_id, 1); //2번째 파라미터 '1'은 라운드 숫자임
-                                  String result = await server.postGetIt(room_id: widget.room_information["room_id"]);
-                                  widget.room_information["writer"] = writerList;
+                                  if(response.isEmpty){
+                                    response = ["A","B","C"];
+                                  }
+                                  dynamic result = await server.postGetIt(room_id: widget.room_information["room_id"]);
+                                  if(response.isEmpty){
+                                    result = "Kim";
+                                  }
+
                                   widget.room_information["usr_answers"] = response;
                                   widget.room_information["picker"] = result;
                                   makeWriterList();
-                                  server.postGameStart(room_id: widget.room_id);
+                                  widget.room_information["writer"] = writerList;
+                                  print("유저의 답변: $response");
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(builder: (context) => DesignedSelectPage(response, widget.room_information))
@@ -314,18 +367,50 @@ class DesignedStartPageForm extends State<DesignedStartPage>{
                                 }
                             )
                           ),
+                          Container(
+                              width: MediaQuery.of(context).size.width,
+                              padding: EdgeInsets.only(top: 10),
+                              child: ElevatedButton(
+                                  style: ButtonStyle(
+                                    minimumSize: MaterialStateProperty.all(Size(200, 50)),
+                                    backgroundColor: MaterialStateProperty.all(MyColors().getSkyblue()),
+                                  ),
+                                  child: const Text('시작하기(작성자 test)',
+                                    style: TextStyle(
+                                      fontFamily: "CAFE",
+                                    ),),
+                                  onPressed: () async {
+                                    server.postGameStart(room_id: widget.room_id);
+                                    //List<String> response = await server.postGetAnswer(widget.room_id, 1); //2번째 파라미터 '1'은 라운드 숫자임
+                                    String result = await server.postGetIt(room_id: widget.room_information["room_id"]);
+                                    widget.room_information["writer"] = writerList;
+                                    //widget.room_information["usr_answers"] = response;
+                                    widget.room_information["picker"] = result;
+                                    makeWriterList();
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => DesignedWritePage(room_information:widget.room_information,))
+                                    );
+                                  }
+                              )
+                          ),
                           Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Container(
                                     child:
                                     ElevatedButton(
-                                        child: const Text('시작하기(술래)'),
-                                        onPressed: (){
+                                        child: const Text('게임종료'),
+                                        onPressed: () {
+                                          /*
                                           Navigator.push(
                                               context,
                                               MaterialPageRoute(builder: (context) => DesignedRoomPick(room_information: widget.room_information,))
-                                          );}
+                                          );
+
+                                           */
+                                          server.postFinish(room_id: widget.room_information["room_id"]);
+                                        }
                                     )
                                 ),
                                 Container(
@@ -335,7 +420,7 @@ class DesignedStartPageForm extends State<DesignedStartPage>{
                                         onPressed: (){
                                           Navigator.push(
                                               context,
-                                              MaterialPageRoute(builder: (context) => RoomWriter())
+                                              MaterialPageRoute(builder: (context) => DesignedWhoisPickerPage(room_information: widget.room_information,))
                                           );}
                                     )
                                 ),

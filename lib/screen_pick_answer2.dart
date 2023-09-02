@@ -6,15 +6,15 @@ import "package:untitled2/tests/dio_server.dart";
 
 class ScreenSelectAnswer2 extends StatefulWidget{
   HttpServer server = HttpServer();
-  late List<String> answers;
-  late List<String> usr_names;
-  ScreenSelectAnswer2(List<String> answers, List<String> usr_names, {super.key}){
+  late List<dynamic>? answers;
+  late List<dynamic>? usr_names;
+  ScreenSelectAnswer2(List<dynamic> answers, List<dynamic> usr_names, {super.key}){
     this.answers = answers;
     this.usr_names = usr_names;
   }
   @override
   State<StatefulWidget> createState() {
-    return ScreenSelectorAnswer2Page(answers,usr_names);
+    return ScreenSelectorAnswer2Page(answers!,usr_names!);
   }
 }
 
@@ -23,15 +23,15 @@ class ScreenSelectorAnswer2Page extends State<ScreenSelectAnswer2>{
   late int expressSelect;
   late String topic;
   bool answerClear = false;
-  late List<String> answers;
-  late List<String> usr_names;
+  late List<dynamic> answers;
+  late List<dynamic> usr_names;
   Color _buttonColor1 = Colors.blue;
   Color _buttonColor2 = Colors.blue;
   Color _buttonColor3 = Colors.blue;
 
-  ScreenSelectorAnswer2Page(List<String> answers, List<String> usr_names,{ Key? key }){
-    this.answers = answers;
-    this.usr_names = usr_names;
+  ScreenSelectorAnswer2Page(List<dynamic> answers, List<dynamic> usr_names,{ Key? key }){
+    this.answers = answers!;
+    this.usr_names = usr_names!;
   }
 
   @override

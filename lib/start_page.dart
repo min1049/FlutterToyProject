@@ -19,6 +19,7 @@ class SelectPlayerState extends StatefulWidget {
 class _SelectPlayerState extends State<SelectPlayerState> {
   var usr_name;
   var isHost = false;
+  var isTest = false;
   String? room_id;
 
   @override
@@ -34,13 +35,54 @@ class _SelectPlayerState extends State<SelectPlayerState> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "로그인",
-                style: TextStyle(
-                    fontFamily: "cafe",
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold),
+              Row(
+                children: [
+                  Text(
+                    "로그인",
+                    style: TextStyle(
+                        fontFamily: "cafe",
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      isTest
+                          ? Text(
+                        "Test on",
+                        style: TextStyle(
+                          fontFamily: "cafe",
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: MyColors().getSkyblue(),
+                        ),
+                      )
+                          : Text(
+                        "Test off",
+                        style: TextStyle(
+                          fontFamily: "cafe",
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black12,
+                        ),
+                      ),
+                      Container(
+                        child: Switch(
+                          value: isTest,
+                          onChanged: (value) {
+                            setState(() {
+                              isTest = value;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+
+                ],
+
               ),
+
               isHost
                   ? Text(
                       "게임에서 사용하실 닉네임과 생성하실 방 번호를 입력해주세요",
@@ -58,11 +100,15 @@ class _SelectPlayerState extends State<SelectPlayerState> {
                         color: Colors.black54,
                       ),
                     ),
+              isTest?
               Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                 Text("닉네임 : $usr_name"),
                 Container(width: 15),
                 Text("방번호: $room_id"),
-              ]),
+              ]):
+                  Container(
+                    height: 5,
+                  ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -119,12 +165,16 @@ class _SelectPlayerState extends State<SelectPlayerState> {
                       });
                     },
                   )),
-              Text(
-                "방번호",
-                style: TextStyle(
-                    fontFamily: "cafe",
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold),
+              Row(
+                children: [
+                  Text(
+                    "방번호",
+                    style: TextStyle(
+                        fontFamily: "cafe",
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
               Container(
                 height: 32,
@@ -163,25 +213,27 @@ class _SelectPlayerState extends State<SelectPlayerState> {
                         onPressed: () async {
                           server.postCreateRoom(room_id!, usr_name);
                           StompServer2 st = StompServer2(room_number: room_id!);
-                          final List<String> response = await server.postGetName(room_id!);
+                          final List<dynamic>? response = await server.postGetName(room_id!);
+                          setState(() {
+                            st.connectToStompServer();
+                            st.subscribeToStompServer();
+                            //Test
+                            //List<String> response = ["test1","test1","test1","test1"];
+                            Navigator.push(
+                              context,
+                              //MaterialPageRoute(builder: (context) => NextScreen(response, TEST_ROOM_NUMBER)),
+                              MaterialPageRoute(
+                                  builder: (context) => DesignedStartPage(
+                                    usr_names: response,
+                                    room_id: room_id!,
+                                    usr_name: usr_name,
+                                    round: "1",
+                                  )
+                              ),
+                              //server.post_usr_name_req(usr_name),
+                            );
+                          });
 
-                          st.connectToStompServer();
-                          st.subscribeToStompServer();
-                          //Test
-                          //List<String> response = ["test1","test1","test1","test1"];
-                          Navigator.push(
-                            context,
-                            //MaterialPageRoute(builder: (context) => NextScreen(response, TEST_ROOM_NUMBER)),
-                            MaterialPageRoute(
-                                builder: (context) => DesignedStartPage(
-                                  usr_names: response,
-                                  room_id: room_id!,
-                                  usr_name: usr_name,
-                                  round: "1",
-                                )
-                            ),
-                            //server.post_usr_name_req(usr_name),
-                          );
                         }
                         ),
                   ):
@@ -201,17 +253,21 @@ class _SelectPlayerState extends State<SelectPlayerState> {
                           ),
                         ),
                         onPressed: () async {
-                          server.postParticipateRoom(room_id!, usr_name);
-                          List<dynamic> responseName = await server.postGetName(room_id!);
-                          print("responseName : ${responseName}");
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => DesignedStartPage(
-                                      usr_name: usr_name,
-                                      usr_names: responseName,
-                                      room_id: room_id,
-                                      round: "1")));
+
+                          List<dynamic>? responseName = await server.postGetName(room_id!);
+                          setState((){
+                            server.postParticipateRoom(room_id!, usr_name);
+                            //print("responseName : ${responseName}");
+
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => DesignedStartPage(
+                                        usr_name: usr_name,
+                                        usr_names: responseName,
+                                        room_id: room_id,
+                                        round: "1")));
+                          });
                         }),
                   ),
                 ]
@@ -230,7 +286,7 @@ class _SelectPlayerState extends State<SelectPlayerState> {
                       child: Text("테스트 페이지")),
                   ElevatedButton(
                       onPressed: () async {
-                        List<dynamic> responseName =
+                        List<dynamic>? responseName =
                             await server.postGetName(room_id!);
                         server.postParticipateRoom(room_id!, usr_name);
                         Navigator.push(
@@ -317,7 +373,7 @@ class StartPageState extends State<StartPage> {
                   } else {
                     //StompServer2 st2 = StompServer2(room_number: room_num);
                     server.postCreateRoom(room_num, usr_name);
-                    final List<String> response =
+                    final List<dynamic>? response =
                         await server.postGetName(room_num);
                     //st2.connectToStompServer();
                     //st2.subscribeToStompServer();
@@ -328,7 +384,7 @@ class StartPageState extends State<StartPage> {
                       //MaterialPageRoute(builder: (context) => NextScreen(response, TEST_ROOM_NUMBER)),
                       MaterialPageRoute(
                           builder: (context) => MakeRoom(
-                                usr_names: response,
+                                usr_names: response!,
                                 room_number: room_num,
                                 usr_name: usr_name,
                               )
@@ -358,7 +414,7 @@ class StartPageState extends State<StartPage> {
                 onPressed: () async {
                   //StompServer2 st2 = StompServer2(room_number: room_num);
                   server.postParticipateRoom(room_num, usr_name);
-                  final List<String> response =
+                  final List<dynamic>? response =
                       await server.postGetName(room_num);
                   Navigator.push(
                     context,
@@ -373,6 +429,12 @@ class StartPageState extends State<StartPage> {
                   );
                 },
                 child: Text('방 입장'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  server.postExit(room_id: room_num, usr_name: usr_name);
+                },
+                child: Text('방 퇴장'),
               ),
               ElevatedButton(
                 onPressed: () {

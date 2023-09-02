@@ -30,11 +30,11 @@ class RoomPick extends StatelessWidget{
                           child: const Text('입력 완료'),
                             onPressed: () async {
                               List<String> response = await server.postGetAnswer("1234", 1, executeWithArbitraryValue: true);
-                              List<String> responseName = await server.postGetName("1234",executeWithArbitraryValue: true);
+                              List<dynamic>? responseName = await server.postGetName("1234",executeWithArbitraryValue: true);
                               print(response);
                               Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => ScreenSelectAnswer2(response,responseName)));
+                                  MaterialPageRoute(builder: (context) => ScreenSelectAnswer2(response,responseName!)));
 
                           }
                     ),
