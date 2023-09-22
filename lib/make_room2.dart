@@ -61,7 +61,7 @@ class _startMakeRoom extends State<StatefulWidget>{
   @override
   void initState() {
     super.initState();
-    st2 = StompServer2(room_number: room_number);
+    st2 = StompServer2(room_number: room_number, usr_name: usr_name);
     _setStomp();
     Timer.periodic(Duration(seconds: 5), (timer) {
       //updateStateEverySecond();
@@ -368,7 +368,7 @@ class lastWidget extends StatelessWidget{
   late String usr_name;
   lastWidget({required this.room_number, required this.usr_name, Key? key});
   double between_human_chatbox = 10;
-  StompServer2 st2 = StompServer2(room_number: "1234");
+  //StompServer2 st2 = StompServer2(room_number: "1234",usr_name: usr_name);
   HttpServer httpServer = HttpServer();
   @override
   Widget build(BuildContext context) {

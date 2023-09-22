@@ -43,7 +43,7 @@ class DesignedStartPage extends StatefulWidget {
   DesignedStartPage({ Key? key , required this.usr_name, this.usr_names, required this.room_id, required this.round}) : super(key: key){
     print("유저 이름 : ${usr_names}");
     print("방 번호 : ${room_id}");
-    st = StompServer2(room_number: this.room_id);
+    st = StompServer2(room_number: room_id,usr_name: usr_name);
     usr_count = countUserInRoom();
   }
 
@@ -430,6 +430,7 @@ class DesignedStartPageForm extends State<DesignedStartPage>{
                                       child: const Text('돌아가기'),
                                       onPressed: (){
                                         server.postExit(room_id: widget.room_id, usr_name: widget.usr_name);
+
                                         Navigator.pop(context,
                                           MaterialPageRoute(builder: (context) => StartPage(usrname: "돌아가기",)));},
                                     )

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:untitled2/tests/ipconfig.dart';
 
 /*
@@ -72,6 +73,7 @@ class StompServer2{
   late dynamic channel;
   late dynamic stream;
   late String room_number;
+  late String usr_name;
   List<String> message = [];
   String? exitMessage = "나가요";
   String URL = IpConfig().getURL;
@@ -79,7 +81,7 @@ class StompServer2{
   StreamSubscription? stompSubscription;
   StreamController<String> dataStreamController = StreamController<String>.broadcast();
 
-  StompServer2({required this.room_number}){
+  StompServer2({required this.room_number, required this.usr_name}){
     this.stompClient = StompClient(
         config: StompConfig.SockJS(
           url: URL,
@@ -90,6 +92,9 @@ class StompServer2{
   }
 
   void onConnectCallback(StompFrame frame) {
+    this.subscribeToStompServer();
+    this.subscribeToMessageServer();
+
     print('Connected to Stomp Server');
     }
 
@@ -98,7 +103,7 @@ class StompServer2{
     dataStreamController.close();
   }
   void connectToStompServer() async{
-    print("연결을 시도합니다.");
+    print("stomp 연결을 시도합니다.");
     await stompClient.activate();
   }
   void testSubscribeToStompServer() async {
@@ -114,16 +119,31 @@ class StompServer2{
     );
     print("request subscribe done");
   }
-
+  //구독
   void subscribeToStompServer(){
+    print("stomp 서버에 구독을 요청합니다.");
     print("room_num : {$room_number}");
     stompClient.subscribe( //stompSubscripstion 업음
-        destination: '/topic/room/$room_number', // 구독할 토픽 이름으로 변경해야 합니다.
+        destination: '/topic/Room/$room_number', // 구독할 토픽 이름으로 변경해야 합니다.
         callback: (StompFrame frame) async {
-          String? data =  await frame.body;
-          print('Received message: $data');
-          message.add(data!); // 메시지 리스트에 추가
-          dataStreamController.add(data);
+          if (frame.body != null) {
+            print('Received message: ${frame.body}');
+          }
+        }
+    );
+    print("request subscribe done");
+  }
+  //app/start/ 구독
+  void subscribeToMessageServer(){
+    print("메세지 서버에 구독을 요청합니다.");
+    stompClient.subscribe( //stompSubscripstion 업음
+        destination: '/app/Start/$room_number/$usr_name', // 구독할 토픽 이름으로 변경해야 합니다.
+        callback: (StompFrame frame) async {
+          if (frame.body != null) {
+            print('Received message: ${frame.body}');
+          }
+          //message.add(data!); // 메시지 리스트에 추가
+          //dataStreamController.add(data);
         }
     );
     print("request subscribe done");
@@ -205,4 +225,5 @@ class StompServer2{
     );
   }
 }
+
 

@@ -57,7 +57,8 @@ class HttpServer{
       response = await dio.post(_API_PREFIX, data: {});
       print(response.data.toString());
     }
-    Future<void> postCreateRoom(String room, String usrName,{bool executeWithArbitraryValue = false}) async{
+
+    Future<void> postCreateRoom(String room, dynamic usrName,{bool executeWithArbitraryValue = false}) async{
       //var formData = FormData.fromMap({"roomNumber" : room, "NickName" : usrName});
       if(executeWithArbitraryValue){
         return;
@@ -65,7 +66,7 @@ class HttpServer{
       else{
         Response response;
         Dio dio = new Dio();
-        response = await dio.post("$_API_PREFIX/CreateRoom", data: {"roomNumber" : room, "NickName" : usrName},);
+        response = await dio.post("$_API_PREFIX/CreateRoom", data: {"roomNumber" : room, "nickName" : usrName},);
         print("여기야 $response");
       }
     }
@@ -91,7 +92,7 @@ class HttpServer{
 
           //List<String> charList = responseBody.split(''); // 문자열을 문자(character)의 목록으로 변환
           //List<String> upperCaseChars = charList.map((char) => char.toUpperCase()).toList();
-          print("참여자 이름 : ${responseData}");
+          //print("참여자 이름 : ${responseData}");
           return stringData;
         }
         else{
@@ -102,18 +103,18 @@ class HttpServer{
     }
     Future<void> postParticipateRoom(String room, String usrName) async{
       Dio dio = new Dio();
-      await dio.post("$_API_PREFIX/ParticipateRoom", data: {"roomNumber" : room, "NickName" : usrName},);
+      await dio.post("$_API_PREFIX/ParticipateRoom", data: {"roomNumber" : room, "nickName" : usrName},);
     }
     Future<void> exitRoom(String room, String usrName) async{
       Dio dio = new Dio();
-      dio.post("$_API_PREFIX/Exit", data: {"roomNumber" : room,"NickName" : usrName}, );
+      dio.post("$_API_PREFIX/Exit", data: {"roomNumber" : room,"nickName" : usrName}, );
     }
     Future<void> postAnswer(String answer) async{
       Response response;
       Dio dio = new Dio();
       String room = "1234";
       String usrName = "영민";
-      response = await dio.post("$_API_PREFIX/CompleteAnswer",data : {"roomNumber" : room, "NickName" : usrName, "Answer" : answer});
+      response = await dio.post("$_API_PREFIX/CompleteAnswer",data : {"roomNumber" : room, "nickName" : usrName, "Answer" : answer});
     }
 
 
@@ -186,22 +187,23 @@ class HttpServer{
   void postGuessPerson({required room_id, required picker, required targer_usr, required answer}){
     Dio dio = new Dio();
 
-    dio.post("$_API_PREFIX/GuessPerson", data: {"roomNumber" : room_id ,"NickName" : picker,"selectNickName" : targer_usr, "selectAnswer" : answer});
+    dio.post("$_API_PREFIX/GuessPerson", data: {"roomNumber" : room_id ,"nickName" : picker,"selectNickName" : targer_usr, "selectAnswer" : answer});
   }
 
   Future<String> postResult({required room_id, required picker}) async {
     Response response;
     Dio dio = new Dio();
 
-    response = await dio.post("$_API_PREFIX/Result", data: {"roomNumber" : room_id, "NickName" : picker });
+    response = await dio.post("$_API_PREFIX/Result", data: {"roomNumber" : room_id, "nickName" : picker });
 
     return response.toString();
   }
 
   /* 플레이어 방 나가기 */
-  Future<void> postExit({required room_id, required usr_name})async {
+  Future<void> postExit({required String room_id, required String usr_name})async {
+    print("$usr_name 이 $room_id 를 나갑니다.");
     Dio dio = new Dio();
-    dio.post("$_API_PREFIX/Exit", data: {"roomNumber" : room_id, "NickName" : usr_name});
+    dio.post("$_API_PREFIX/Exit", data: {"roomNumber" : room_id, "nickName" : usr_name});
   }
   /* 게임종료 */
   Future<void> postFinish({required room_id})async {
@@ -222,7 +224,7 @@ class HttpServer{
 
   void postCompleteAnser({required room_id, required usr_id, required text}){
     Dio dio = new Dio();
-    dio.post("$_API_PREFIX/CompleteAnswer", data: {"roomNumber" : room_id, "Nickname" : usr_id,"Answer" : text });
+    dio.post("$_API_PREFIX/CompleteAnswer", data: {"roomNumber" : room_id, "nickName" : usr_id,"Answer" : text });
     print("방 : $room_id에 있는 $usr_id가 $text 내용을 DB에 전송");
   }
 

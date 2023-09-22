@@ -262,7 +262,7 @@ class _startMakeRoom extends State<StatefulWidget>{
   late String room_number;
   _startMakeRoom({Key? key, required this.usr_names,required this.room_number});
 
-  late StompServer2 st2 = StompServer2(room_number: this.room_number);
+  //late StompServer2 st2 = StompServer2(room_number: this.room_number);
 
   final double human_icon_size = 75;
   final double between_human_chatbox = 200;

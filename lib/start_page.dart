@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:stomp_dart_client/stomp_config.dart';
+import 'package:stomp_dart_client/stomp_frame.dart';
 import 'package:untitled2/Design/screen_start.dart';
 import 'package:untitled2/app_colors.dart';
 import 'package:untitled2/test_stomp.dart';
@@ -211,29 +213,26 @@ class _SelectPlayerState extends State<SelectPlayerState> {
                           ),
                         ),
                         onPressed: () async {
-                          server.postCreateRoom(room_id!, usr_name);
-                          StompServer2 st = StompServer2(room_number: room_id!);
+                          print("usr_name : $usr_name");
+                          print("room_id : $room_id");
+                          await server.postCreateRoom(room_id!, usr_name!);
                           final List<dynamic>? response = await server.postGetName(room_id!);
-                          setState(() {
-                            st.connectToStompServer();
-                            st.subscribeToStompServer();
-                            //Test
-                            //List<String> response = ["test1","test1","test1","test1"];
-                            Navigator.push(
-                              context,
-                              //MaterialPageRoute(builder: (context) => NextScreen(response, TEST_ROOM_NUMBER)),
-                              MaterialPageRoute(
-                                  builder: (context) => DesignedStartPage(
-                                    usr_names: response,
-                                    room_id: room_id!,
-                                    usr_name: usr_name,
-                                    round: "1",
-                                  )
-                              ),
-                              //server.post_usr_name_req(usr_name),
-                            );
-                          });
 
+                          StompServer2 st = StompServer2(room_number: room_id! ,usr_name: usr_name);
+                          //await st.stompClient.activate();
+                          st.connectToStompServer();
+
+                          Navigator.push(context,
+                            MaterialPageRoute(
+                                builder: (context) => DesignedStartPage(
+                                  usr_names: response,
+                                  room_id: room_id!,
+                                  usr_name: usr_name,
+                                  round: "1",
+                                )
+                            ),
+                            //server.post_usr_name_req(usr_name),
+                          );
                         }
                         ),
                   ):
@@ -253,20 +252,24 @@ class _SelectPlayerState extends State<SelectPlayerState> {
                           ),
                         ),
                         onPressed: () async {
-
+                          await server.postParticipateRoom(room_id!, usr_name);
                           List<dynamic>? responseName = await server.postGetName(room_id!);
-                          setState((){
-                            server.postParticipateRoom(room_id!, usr_name);
-                            //print("responseName : ${responseName}");
+                          print("responseName : ${responseName}");
 
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => DesignedStartPage(
-                                        usr_name: usr_name,
-                                        usr_names: responseName,
-                                        room_id: room_id,
-                                        round: "1")));
+
+                          StompServer2 st = StompServer2(room_number: room_id!, usr_name: usr_name);
+                          //await st.stompClient.activate();
+                          st.connectToStompServer();
+
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => DesignedStartPage(
+                                      usr_name: usr_name,
+                                      usr_names: responseName,
+                                      room_id: room_id,
+                                      round: "1")));
+                          setState((){
                           });
                         }),
                   ),
@@ -340,7 +343,7 @@ class StartPageState extends State<StartPage> {
 
   @override
   Widget build(BuildContext context) {
-    StompServer2 st2 = StompServer2(room_number: room_num);
+    StompServer2 st2 = StompServer2(room_number: room_num, usr_name: usr_name);
     return MaterialApp(
         home: Scaffold(
             body: Container(
@@ -414,8 +417,7 @@ class StartPageState extends State<StartPage> {
                 onPressed: () async {
                   //StompServer2 st2 = StompServer2(room_number: room_num);
                   server.postParticipateRoom(room_num, usr_name);
-                  final List<dynamic>? response =
-                      await server.postGetName(room_num);
+                  final List<dynamic>? response = await server.postGetName(room_num);
                   Navigator.push(
                     context,
                     //MaterialPageRoute(builder: (context) => NextScreen(response, TEST_ROOM_NUMBER)),
