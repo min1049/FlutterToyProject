@@ -29,6 +29,7 @@ class DesignedStartPage extends StatefulWidget {
     "usr_names" : usr_names,
     "round" : round,
     "usr_count" : usr_count,
+    "picker" : null,
   };
 
   int countUserInRoom(){
@@ -350,13 +351,14 @@ class DesignedStartPageForm extends State<DesignedStartPage>{
                                   if(response.isEmpty){
                                     response = ["A","B","C"];
                                   }
-                                  dynamic result = await server.postGetIt(room_id: widget.room_information["room_id"]);
+                                  //dynamic result = await server.postChangeIt(room_id: widget.room_information["room_id"]);
+                                  //dynamic result = widget.room_information["usr_name"];
                                   if(response.isEmpty){
-                                    result = "Kim";
+                                    //result = "Kim";
                                   }
 
                                   widget.room_information["usr_answers"] = response;
-                                  widget.room_information["picker"] = result;
+                                  //widget.room_information["picker"] = result;
                                   makeWriterList();
                                   widget.room_information["writer"] = writerList;
                                   print("유저의 답변: $response");

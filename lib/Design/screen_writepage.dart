@@ -13,10 +13,13 @@ class DesignedWritePage extends StatefulWidget {
 
 
   DesignedWritePage({ Key? key, required this.room_information}){
-    this.topic = server.postRequestQuestion(room_id: room_information["room_id"]);
+    print("room_information in DesignedWritePage page : \n $room_information \n");
+    fetchTopic();
     this.picker = room_information["picker"];
   }
-
+  void fetchTopic() async {
+    this.topic = await server.postRequestQuestion(room_id: room_information["room_id"]);
+  }
 
   @override
   State<StatefulWidget> createState() {
@@ -49,7 +52,7 @@ class DesignedWritePageForm extends State<DesignedWritePage> {
                   : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("술래는\n ${widget.picker = "(술래 닉네임)"} \n${widget.topic = "상대방의 첫 인상을 작성하세요"}",
+                    Text("술래는\n ${widget.picker} \n${widget.topic}",
                       style: TextStyle(fontSize: 42),
                       textAlign: TextAlign.center,
                     ),
@@ -78,7 +81,7 @@ class DesignedWritePageForm extends State<DesignedWritePage> {
                                 : IconButton(
                                 icon: Icon(Icons.send),
                                 onPressed: () {
-                                  server.postCompleteAnser(room_id: room_information["room_id"], usr_id: room_information["usr_name"], text: answer);
+                                  //server.postCompleteAnwser(room_id: room_information["room_id"], usr_id: room_information["usr_name"], text: answer);
                                 }
                             ),
                           ),
@@ -95,6 +98,7 @@ class DesignedWritePageForm extends State<DesignedWritePage> {
                               onPressed: () {
                                 setState(() {
                                   submitAnswer = true;
+
                                 });
                               },
                             ),

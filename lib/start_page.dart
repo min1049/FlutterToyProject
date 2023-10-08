@@ -215,24 +215,39 @@ class _SelectPlayerState extends State<SelectPlayerState> {
                         onPressed: () async {
                           print("usr_name : $usr_name");
                           print("room_id : $room_id");
-                          await server.postCreateRoom(room_id!, usr_name!);
-                          final List<dynamic>? response = await server.postGetName(room_id!);
 
-                          StompServer2 st = StompServer2(room_number: room_id! ,usr_name: usr_name);
-                          //await st.stompClient.activate();
-                          st.connectToStompServer();
+                          Fluttertoast.showToast(msg: "데이터를 기다리는 중...", gravity: ToastGravity.CENTER);
 
-                          Navigator.push(context,
-                            MaterialPageRoute(
-                                builder: (context) => DesignedStartPage(
-                                  usr_names: response,
-                                  room_id: room_id!,
-                                  usr_name: usr_name,
-                                  round: "1",
-                                )
-                            ),
-                            //server.post_usr_name_req(usr_name),
-                          );
+                          try {
+                            await server.postCreateRoom(room_id!, usr_name!);
+                            List<dynamic>? response = await server.postGetName(room_id!);
+
+                            if (response != null) {
+                              // 데이터가 정상적으로 도착한 경우에만 화면을 넘깁니다.
+                              StompServer2 st = StompServer2(room_number: room_id! ,usr_name: usr_name);
+                              //await st.stompClient.activate();
+                              st.connectToStompServer();
+
+                              Navigator.push(context,
+                                MaterialPageRoute(
+                                    builder: (context) => DesignedStartPage(
+                                      usr_names: response,
+                                      room_id: room_id!,
+                                      usr_name: usr_name,
+                                      round: "1",
+                                    )
+                                ),
+                              );
+                            } else {
+                              // 데이터가 null인 경우에 대한 처리를 수행할 수 있습니다.
+                              // 예를 들어, 에러 메시지를 출력하거나 다른 조치를 취할 수 있습니다.
+                              print("Response is null. Handle the error.");
+                            }
+                          } catch (e) {
+                            // 예외 처리를 수행합니다. 서버 요청 중 오류가 발생한 경우 처리할 수 있습니다.
+                            Fluttertoast.showToast(msg: "오류가 발생했습니다.", gravity: ToastGravity.CENTER);
+                            print("Error: $e");
+                          }
                         }
                         ),
                   ):

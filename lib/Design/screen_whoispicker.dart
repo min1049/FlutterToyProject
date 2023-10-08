@@ -11,7 +11,7 @@ class DesignedWhoisPickerPage extends StatefulWidget {
   late Map<String, dynamic> room_information;
 
   DesignedWhoisPickerPage({required this.room_information}) {
-    print("room_information in who is picker page : \n $room_information");
+    print("room_information in who is picker page : \n $room_information \n");
   }
 
   @override
@@ -31,6 +31,7 @@ class DesignedWhoisPickerPageForm extends State<DesignedWhoisPickerPage> {
 
   void FetchPicker() async {
     picker = await server.postGetIt(room_id: widget.room_information["room_id"]);
+    widget.room_information["picker"] = picker;
   }
 
   Future<String> fetchData() async {
@@ -44,7 +45,7 @@ class DesignedWhoisPickerPageForm extends State<DesignedWhoisPickerPage> {
     return WillPopScope(
       onWillPop: () async {
         // Prevent navigating back
-        return false;
+        return true;
       },
       child: Scaffold(
         body: FutureBuilder<String>(

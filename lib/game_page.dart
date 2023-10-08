@@ -424,16 +424,16 @@ class _startMakeRoom extends State<StatefulWidget>{
                   ),
                 ),
                 StreamBuilder(
-                  //stream: widget.ws.channel.stream,
-                    stream: st2.dataStreamController.stream,
+                  //stream: widget.ws.channel.stream
+                    //stream: st2.dataStreamController.stream,
                     builder: (context, snapshot){
                       if (snapshot.hasData) {
                         // 스트림으로부터 새로운 데이터가 도착하면 ListView에 추가
                         return ListView.builder(
-                          itemCount: st2.message.length,
+                          //itemCount: st2.message.length,
                           itemBuilder: (context, index) {
                             return ListTile(
-                              title: Text(st2.message[index]),
+                              //title: Text(st2.message[index]),
                             );
                           },
                         );
@@ -556,7 +556,7 @@ class PlayerBox extends StatelessWidget{
 
 class lastWidget extends StatelessWidget{
   double between_human_chatbox = 10;
-  StompServer2 st2 = StompServer2(room_number: "1234");
+  StompServer2 st2 = StompServer2(room_number: "1234",usr_name: "kim");
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
